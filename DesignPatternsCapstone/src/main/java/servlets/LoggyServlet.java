@@ -43,7 +43,7 @@ public class LoggyServlet extends HttpServlet {
 		String path = req.getServletContext().getRealPath("index.html");
 		
 		PrintWriter writer = resp.getWriter();
-		writer.write(getHTMLString(path, "Welcome to FleaBay!", null));
+		writer.write(getHTMLString(path, "Welcome to COol!", null));
 	}
 
 	@Override
