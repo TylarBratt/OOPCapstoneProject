@@ -21,7 +21,7 @@ public class MainServlet extends HttpServlet {
 		
 		if (user != null) {
 			//If user already logged in, redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/other");
+			resp.sendRedirect(req.getContextPath()+"/home");
 		}
 		else {
 			//Otherwise redirect to the login screen.

@@ -42,8 +42,12 @@ public class HomeServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		PrintWriter writer = resp.getWriter();
-		writer.write(getHTMLString(req));
+		//If user is not logged in, redirect to login screen.
+		User user = (User)req.getSession().getAttribute("user");
+		if (user == null)
+			resp.sendRedirect(req.getContextPath()+"/login");
+		else
+			resp.getWriter().write(getHTMLString(req));
 	}
 
 	@Override

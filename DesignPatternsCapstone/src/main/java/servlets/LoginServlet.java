@@ -28,6 +28,14 @@ import dao.Database;
 public class LoginServlet extends HttpServlet {
 	
 	public static final String htmlPath = "html/login.html";
+	public enum ErrorMessage {
+		INVALID_CREDENTIALS("Username or password is incorrect.");
+		
+		ErrorMessage(String message){
+			this.message = message;
+		}
+		public String message;
+	}
 	
 	Database database = null;
 	@Override
@@ -52,16 +60,10 @@ public class LoginServlet extends HttpServlet {
 		
 		//resp.sendRedirect(req.getContextPath()+"/other");
 		
-		User user = (User)req.getSession().getAttribute("user");
 		
-		if (user != null) {
-			//If user already logged in, redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/login");
-		}
-		else {
-			PrintWriter writer = resp.getWriter();
-			writer.write(getHTMLString(req));
-		}
+		PrintWriter writer = resp.getWriter();
+		writer.write(getHTMLString(req, null));
+		
 	}
 
 	@Override
@@ -79,17 +81,18 @@ public class LoginServlet extends HttpServlet {
 			HttpSession session = req.getSession();
 			session.setAttribute("user", user);
 			
-			//If user already logged in, redirect to the home page.
+			//Redirect to the home page.
 			resp.sendRedirect(req.getContextPath()+"/home");
 		}
 		else {
 			//Return the web page html
-			PrintWriter writer = resp.getWriter();
-			writer.write(getHTMLString(req));
+			 resp.getWriter().write(getHTMLString(req,ErrorMessage.INVALID_CREDENTIALS));
 		}
+		
+		
 	}
 	
-	public String getHTMLString(HttpServletRequest req) throws IOException {
+	public String getHTMLString(HttpServletRequest req, ErrorMessage error) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(req.getServletContext().getRealPath(htmlPath)));
 		String line = null;
 		StringBuffer buffer = new StringBuffer();
@@ -100,17 +103,15 @@ public class LoginServlet extends HttpServlet {
 		reader.close();
 		
 		
-		User user = (User)req.getSession().getAttribute("user");
-		String loginMessage = "";
-		if (user != null) {
-			loginMessage = "<br><h2>Greetings "+user.userName+"!</h2>";
-		}
+		String errorMsg = error != null ? error.message : " ";
+		
+		
 		/**
 		 * Params:
 		 * 0 - App name
 		 * 1 - Slogan
 		 */
-		return MessageFormat.format(buffer.toString(), Common.appName, Common.appSlogan, loginMessage);
+		return MessageFormat.format(buffer.toString(), Common.appName, Common.appSlogan, errorMsg);
 	}
 	
 }

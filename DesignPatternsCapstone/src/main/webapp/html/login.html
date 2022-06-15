@@ -8,12 +8,12 @@
 	<h1>Welcome to {0}</h1>
 	<h3>{1}</h3>
 	
-	{2}
-	
 	<form method="post">
-		<label>Username:</label> <br><input type="text" name="username" id="title" size=20 maxlength=60><br>
-		<label>Password:</label><br><input type="text" name="password" id="title" size=20 maxlength=60><br><br>
+		<label>Username:</label> <br><input type="text" name="username" id="title" size=20 maxlength=60 required><br>
+		<label>Password:</label><br><input type="password" name="password" id="title" size=20 maxlength=60 required><br>
+		<p style="color:red;">{2}</p>
 		<input type="submit" value="Login" id="login">
+		
 	</form>
 	
 	<p>
