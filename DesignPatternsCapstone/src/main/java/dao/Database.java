@@ -9,7 +9,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
+import beans.Common;
 import beans.Log;
+import beans.User;
+import beans.UserRole;
 
 public class Database {
 	public Connection connection = null;
@@ -20,7 +25,7 @@ public class Database {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("MySQL JDBC Driver Registered!");
 			
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/oop_assign3", "root", "wopr5000");
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+Common.databaseSchema, Common.databaseUser, Common.databasePassword);
 			
 		} catch (ClassNotFoundException e) {
 			System.out.print("MySQL JDBC driver not found!");
@@ -38,6 +43,7 @@ public class Database {
 	
 	public void shutdown() {
 		System.out.println("Shutting down MySQL connection...");
+
 		if (connection != null) {
 			try {
 				connection.close();
@@ -45,6 +51,33 @@ public class Database {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public User login(String userName, String password) {
+		ResultSet results = null;
+		try {
+			String loginQuery = "SELECT * FROM user WHERE username = ? AND password = ?";
+			PreparedStatement statement = connection.prepareStatement(loginQuery);
+			statement.setString(1, userName);
+			statement.setString(2, password);
+			results = statement.executeQuery();
+			
+			// If a user was returned as a result, then login was successful. 
+			// Store the userID to the current session to indicate the user has logged in.
+			if (results.next()) {
+				return new User(results.getLong("id"),
+						results.getString("username"),
+						results.getString("password"),
+						results.getLong("credits"),
+						UserRole.valueOf(results.getString("role")));
+				
+				
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public List<Log> getLogs() {
@@ -55,7 +88,6 @@ public class Database {
 			String sqlRequest = "SELECT * FROM log;";
 			Statement statement = connection.createStatement();
 			ResultSet set = statement.executeQuery(sqlRequest);
-			
 
 			while (set.next()) {
 				output.add(new Log(set.getLong("id"),set.getString("title"), set.getString("content"), set.getString("timestamp")));

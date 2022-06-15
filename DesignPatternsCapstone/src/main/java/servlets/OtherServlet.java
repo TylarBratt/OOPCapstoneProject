@@ -17,9 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import beans.Log;
 import dao.Database;
 
-@WebServlet("/")
+@WebServlet("/other")
 
-public class LoggyServlet extends HttpServlet {
+public class OtherServlet extends HttpServlet {
 	
 	Database database = null;
 	@Override
@@ -40,15 +40,17 @@ public class LoggyServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		//Return the default HTML page with a welcome message..
-		String path = req.getServletContext().getRealPath("index.html");
+		String path = req.getServletContext().getRealPath("html/index.html");
 		
+		System.out.println("CONTEXT PATH: " +req.getRequestURI());
 		PrintWriter writer = resp.getWriter();
-		writer.write(getHTMLString(path, "Welcome to COol!", null));
+		writer.write(getHTMLString(path, "Welcome to Other!", null));
 	}
 
 	@Override
+	
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String path = req.getServletContext().getRealPath("index.html");
+		String path = req.getServletContext().getRealPath("html/index.html");
 		String actionMsg = null;
 		Long itemToEdit = null;
 		
