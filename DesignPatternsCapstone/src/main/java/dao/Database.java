@@ -79,6 +79,27 @@ public class Database {
 		}
 		return null;
 	}
+	public User createAccount(String userName, String password) {
+		int rowsAffected = 0;
+		try {
+			String insertQuery = "INSERT INTO user (username,password,credits,role) VALUES (?,?,?,?)";
+			
+			PreparedStatement statement = connection.prepareStatement(insertQuery);
+			statement.setString(1, userName);
+			statement.setString(2, password);
+			statement.setLong(3, Common.newUserCredits);
+			statement.setString(4,  UserRole.USER.name());
+			
+			rowsAffected = statement.executeUpdate();
+			System.out.println(rowsAffected + " rows updated.");
+			
+			//Now that an account is created, login using the same credentials.
+			return login(userName, password);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 	
 	public List<Log> getLogs() {
 

@@ -4,9 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +20,22 @@ import beans.Log;
 import beans.User;
 import dao.Database;
 
-@WebServlet("/login")
+@WebServlet("/signup")
 
-public class LoginServlet extends HttpServlet {
-	
-	public static final String htmlPath = "html/login.html";
-	
+public class SignupServlet extends HttpServlet {
+
+	public static final String htmlPath = "html/signup.html";
+	public enum ErrorMessage {
+		USERNAME_TAKEN("Username is taken. Try again."),
+		MISSING_INFO("All fields must be filled.");
+		
+		ErrorMessage(String message){
+			this.message = message;
+		}
+		public String message;
+	}
 	Database database = null;
+	
 	@Override
 	public void destroy() {
 		//Shut down the database connection..
@@ -47,21 +53,8 @@ public class LoginServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//Return the default HTML page with a welcome message..
-		//String path = req.getServletContext().getRealPath(htmlPath);
-		
-		//resp.sendRedirect(req.getContextPath()+"/other");
-		
-		User user = (User)req.getSession().getAttribute("user");
-		
-		if (user != null) {
-			//If user already logged in, redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/login");
-		}
-		else {
-			PrintWriter writer = resp.getWriter();
-			writer.write(getHTMLString(req));
-		}
+		PrintWriter writer = resp.getWriter();
+		writer.write(getHTMLString(req, null));
 	}
 
 	@Override
@@ -69,48 +62,45 @@ public class LoginServlet extends HttpServlet {
 		String username = req.getParameter("username");
 		String password = req.getParameter("password");
 		
-		//Try logging in with the provided credentials..
-		User user = database.login(username,  password);
+		//Try creating a new user account with the provided credentials.
+		User user = database.createAccount(username,  password);
 		
 		if (user != null) {
-			System.out.println("Logged in as user: #"+user.id+" "+user.userName);
+			System.out.println("Signed up as user: #"+user.id+" "+user.userName);
 			
 			//Store the user data to the session so we can remain logged in.
 			HttpSession session = req.getSession();
 			session.setAttribute("user", user);
 			
 			//If user already logged in, redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/home");
+			resp.sendRedirect(req.getContextPath()+"/other");
 		}
 		else {
 			//Return the web page html
-			PrintWriter writer = resp.getWriter();
-			writer.write(getHTMLString(req));
+			resp.getWriter().write(getHTMLString(req, ErrorMessage.USERNAME_TAKEN));
 		}
 	}
 	
-	public String getHTMLString(HttpServletRequest req) throws IOException {
+	public String getHTMLString(HttpServletRequest req, ErrorMessage error) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(req.getServletContext().getRealPath(htmlPath)));
 		String line = null;
 		StringBuffer buffer = new StringBuffer();
 		while ((line=reader.readLine())!=null) 
 			buffer.append(line);
-		
-		
 		reader.close();
 		
 		
-		User user = (User)req.getSession().getAttribute("user");
-		String loginMessage = "";
-		if (user != null) {
-			loginMessage = "<br><h2>Greetings "+user.userName+"!</h2>";
-		}
+	
+		String errorMessage = "";
+		if (error != null) 
+			errorMessage = "<p style=\"color:red;\">"+error.message+"</p>";
+	
 		/**
 		 * Params:
-		 * 0 - App name
-		 * 1 - Slogan
+		 * 0 -
+		 * 1 - 
 		 */
-		return MessageFormat.format(buffer.toString(), Common.appName, Common.appSlogan, loginMessage);
+		return MessageFormat.format(buffer.toString(), Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMessage);
 	}
 	
 }

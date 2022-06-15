@@ -4,9 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,18 +13,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import beans.Common;
 import beans.Log;
 import beans.User;
 import dao.Database;
 
-@WebServlet("/login")
+@WebServlet("/home")
 
-public class LoginServlet extends HttpServlet {
-	
-	public static final String htmlPath = "html/login.html";
+public class HomeServlet extends HttpServlet {
+	public static final String htmlPath = "html/home.html";
 	
 	Database database = null;
 	@Override
@@ -47,49 +42,21 @@ public class LoginServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//Return the default HTML page with a welcome message..
-		//String path = req.getServletContext().getRealPath(htmlPath);
-		
-		//resp.sendRedirect(req.getContextPath()+"/other");
-		
-		User user = (User)req.getSession().getAttribute("user");
-		
-		if (user != null) {
-			//If user already logged in, redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/login");
-		}
-		else {
-			PrintWriter writer = resp.getWriter();
-			writer.write(getHTMLString(req));
-		}
+		PrintWriter writer = resp.getWriter();
+		writer.write(getHTMLString(req));
 	}
 
 	@Override
+	
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		String username = req.getParameter("username");
-		String password = req.getParameter("password");
+	
 		
-		//Try logging in with the provided credentials..
-		User user = database.login(username,  password);
-		
-		if (user != null) {
-			System.out.println("Logged in as user: #"+user.id+" "+user.userName);
-			
-			//Store the user data to the session so we can remain logged in.
-			HttpSession session = req.getSession();
-			session.setAttribute("user", user);
-			
-			//If user already logged in, redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/home");
-		}
-		else {
-			//Return the web page html
-			PrintWriter writer = resp.getWriter();
-			writer.write(getHTMLString(req));
-		}
+		PrintWriter writer = resp.getWriter();
+		writer.write(getHTMLString(req));
 	}
 	
 	public String getHTMLString(HttpServletRequest req) throws IOException {
+		
 		BufferedReader reader = new BufferedReader(new FileReader(req.getServletContext().getRealPath(htmlPath)));
 		String line = null;
 		StringBuffer buffer = new StringBuffer();
@@ -103,14 +70,14 @@ public class LoginServlet extends HttpServlet {
 		User user = (User)req.getSession().getAttribute("user");
 		String loginMessage = "";
 		if (user != null) {
-			loginMessage = "<br><h2>Greetings "+user.userName+"!</h2>";
+			loginMessage = "<h2>Greetings "+user.userName+"!</h2>";
 		}
 		/**
 		 * Params:
 		 * 0 - App name
 		 * 1 - Slogan
 		 */
-		return MessageFormat.format(buffer.toString(), Common.appName, Common.appSlogan, loginMessage);
+		return MessageFormat.format(buffer.toString(), loginMessage);
 	}
 	
 }
