@@ -1,4 +1,4 @@
-package dao;
+package beans;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,12 +9,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
-
-import beans.Common;
-import beans.Log;
-import beans.User;
-import beans.UserRole;
 
 public class Database {
 	public Connection connection = null;
@@ -56,8 +50,8 @@ public class Database {
 	public User login(String userName, String password) {
 		ResultSet results = null;
 		try {
-			String loginQuery = "SELECT * FROM user WHERE username = ? AND password = ?";
-			PreparedStatement statement = connection.prepareStatement(loginQuery);
+			String query = "SELECT * FROM user WHERE username = ? AND password = ?";
+			PreparedStatement statement = connection.prepareStatement(query);
 			statement.setString(1, userName);
 			statement.setString(2, password);
 			results = statement.executeQuery();
@@ -69,7 +63,7 @@ public class Database {
 						results.getString("username"),
 						results.getString("password"),
 						results.getLong("credits"),
-						UserRole.valueOf(results.getString("role")));
+						User.Role.valueOf(results.getString("role")));
 				
 				
 			}
@@ -82,13 +76,13 @@ public class Database {
 	public User createAccount(String userName, String password) {
 		int rowsAffected = 0;
 		try {
-			String insertQuery = "INSERT INTO user (username,password,credits,role) VALUES (?,?,?,?)";
+			String query = "INSERT INTO user (username,password,credits,role) VALUES (?,?,?,?)";
 			
-			PreparedStatement statement = connection.prepareStatement(insertQuery);
+			PreparedStatement statement = connection.prepareStatement(query);
 			statement.setString(1, userName);
 			statement.setString(2, password);
 			statement.setLong(3, Common.newUserCredits);
-			statement.setString(4,  UserRole.USER.name());
+			statement.setString(4,  User.Role.USER.name());
 			
 			rowsAffected = statement.executeUpdate();
 			System.out.println(rowsAffected + " rows updated.");
@@ -106,9 +100,8 @@ public class Database {
 		List<Log> output = new ArrayList<>();
 		
 		try {
-			String sqlRequest = "SELECT * FROM log;";
-			Statement statement = connection.createStatement();
-			ResultSet set = statement.executeQuery(sqlRequest);
+			String query = "SELECT * FROM log;";
+			ResultSet set = connection.createStatement().executeQuery(query);
 
 			while (set.next()) {
 				output.add(new Log(set.getLong("id"),set.getString("title"), set.getString("content"), set.getString("timestamp")));
@@ -136,24 +129,6 @@ public class Database {
 		}
 	}
 	
-	public boolean addLog(String title, String content) {
-		//Create a new log object. We can set ID and timestamp to null because these will be automatically set by the database.
-		Log log = new Log(null, title, content, null);
-		int rowsAffected = 0;
-		try {
-			String insertQuery = "INSERT INTO log (title,content,timestamp) VALUES (?,?,CURRENT_TIMESTAMP())";
-			
-			PreparedStatement statement = connection.prepareStatement(insertQuery);
-			statement.setString(1, log.title);
-			statement.setString(2, log.content);
-			rowsAffected = statement.executeUpdate();
-			System.out.println(rowsAffected + " rows updated.");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
 	
 	public void updateLog(long index, String title, String content) {
 		
