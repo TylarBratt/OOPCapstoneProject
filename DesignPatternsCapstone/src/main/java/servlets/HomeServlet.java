@@ -13,11 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import beans.Database;
+import beans.DefaultProductInfo;
+import beans.Product;
 import beans.User;
 
 @WebServlet("/home")
 
-public class HomeServlet extends HttpServlet {
+public class HomeServlet extends BaseServlet {
 	public static final String htmlPath = "html/home.html";
 	
 	Database database = null;
@@ -44,6 +46,8 @@ public class HomeServlet extends HttpServlet {
 			resp.sendRedirect(req.getContextPath()+"/login");
 		else
 			resp.getWriter().write(getHTMLString(req));
+		
+		
 	}
 
 	@Override
@@ -57,14 +61,12 @@ public class HomeServlet extends HttpServlet {
 	
 	public String getHTMLString(HttpServletRequest req) throws IOException {
 		
-		BufferedReader reader = new BufferedReader(new FileReader(req.getServletContext().getRealPath(htmlPath)));
-		String line = null;
-		StringBuffer buffer = new StringBuffer();
-		while ((line=reader.readLine())!=null) 
-			buffer.append(line);
+		StringBuffer page = new StringBuffer();
+		
+		page.append(getFileText(req.getServletContext().getRealPath(htmlPath)));
 		
 		
-		reader.close();
+		String css = "<style>"+getFileText(req.getServletContext().getRealPath("/css/style.css"))+"</style>";
 		
 		
 		User user = (User)req.getSession().getAttribute("user");
@@ -72,12 +74,21 @@ public class HomeServlet extends HttpServlet {
 		if (user != null) {
 			loginMessage = "<h2>Greetings "+user.userName+"!</h2>";
 		}
+		
 		/**
 		 * Params:
 		 * 0 - App name
 		 * 1 - Slogan
 		 */
-		return MessageFormat.format(buffer.toString(), loginMessage);
+		
+		//Get products html..
+		StringBuffer products = new StringBuffer();
+		for (Product product : database.getProductsOwnedByUser(user.id)) {
+			products.append(MessageFormat.format(getFileText(req.getServletContext().getRealPath("html/product-list-item.html")), product.imagePath, product.name));
+		}
+		
+		
+		return MessageFormat.format(page.toString(), loginMessage, products, css, user.userName);
 	}
 	
 }

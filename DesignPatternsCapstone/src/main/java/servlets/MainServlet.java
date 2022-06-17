@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import beans.User;
 
-@WebServlet("/")
+@WebServlet("")
 
 public class MainServlet extends HttpServlet {
 	

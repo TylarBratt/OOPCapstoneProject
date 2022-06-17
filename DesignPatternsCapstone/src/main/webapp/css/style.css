@@ -1,0 +1,64 @@
+@charset "ISO-8859-1";
+
+body {
+	background-color: #caffe2;
+	
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.user-info {
+	float: right;
+}
+
+
+.user-info.name {
+	font-weight: bold;
+	font-size: large;
+}
+
+
+.navbar {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	background-color: #333;
+	overflow: hidden;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar li {
+	float: left;
+}
+
+.navbar li a {
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+}
+
+.navbar li a:hover {
+	background-color: #111;
+}
+
+.navbar li .active {
+	background-color: #04AA6D;
+}
+
+.product h3 {
+	padding :10px;
+	
+}
+
+.product img {
+	background-color: linen;
+}
+.product *{
+	display :inline;
+}
+.product {
+	align-items :center;
+	display :flex;
+	
+}

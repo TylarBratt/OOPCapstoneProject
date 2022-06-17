@@ -73,7 +73,7 @@ public class SignupServlet extends HttpServlet {
 			session.setAttribute("user", user);
 			
 			//If user already logged in, redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/other");
+			resp.sendRedirect(req.getContextPath()+"/home");
 		}
 		else {
 			//Return the web page html
