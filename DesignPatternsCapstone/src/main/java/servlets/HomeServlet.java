@@ -54,7 +54,7 @@ public class HomeServlet extends BaseServlet {
 			loginMessage = "<h2>Greetings "+user.userName+"!</h2>";
 		}
 		
-		return readFileText(getServletContext().getRealPath(htmlPath), loginMessage, "", generateCSS(), user.userName);
+		return readFileText(htmlPath, loginMessage, "", generateCSS(), user.userName);
 	}
 	
 }

@@ -55,7 +55,7 @@ public class LoginServlet extends BaseServlet {
 	public String getHTMLString(HttpServletRequest req, String errorMsg) throws IOException {
 		
 		//Read the html file and insert data for the specified arguments..
-		return readFileText(getServletContext().getRealPath("html/login.html"),Common.appName, Common.appSlogan, errorMsg != null ? errorMsg : "");
+		return readFileText("html/login.html",Common.appName, Common.appSlogan, errorMsg != null ? errorMsg : "");
 	}
 	
 }

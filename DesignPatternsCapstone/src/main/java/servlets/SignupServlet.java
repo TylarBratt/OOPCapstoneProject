@@ -76,7 +76,7 @@ public class SignupServlet extends BaseServlet {
 		else
 			errorMessage = "";
 	
-		return readFileText(getServletContext().getRealPath("html/signup.html"), Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMessage);
+		return readFileText("html/signup.html", Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMessage);
 	}
 	
 }

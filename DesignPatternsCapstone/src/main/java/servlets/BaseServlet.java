@@ -46,7 +46,7 @@ public class BaseServlet extends HttpServlet{
 	
 	String readFileText(String path, Object ...arguments) throws IOException {
 		//Create a new buffered reader to load the file with.
-		BufferedReader reader = new BufferedReader(new FileReader(path));
+		BufferedReader reader = new BufferedReader(new FileReader(getServletContext().getRealPath(path)));
 		StringBuffer out = new StringBuffer();
 		String line = null;
 		while ((line=reader.readLine())!=null) 
@@ -62,7 +62,7 @@ public class BaseServlet extends HttpServlet{
 	}
 	
 	public String generateCSS() throws IOException {
-		return "<style>"+readFileText(getServletContext().getRealPath("/css/style.css"))+"</style>";
+		return "<style>"+readFileText("/css/style.css")+"</style>";
 	}
 	
 }
