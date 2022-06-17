@@ -22,9 +22,13 @@ import beans.User;
 
 @WebServlet("/signup")
 
-public class SignupServlet extends HttpServlet {
+public class SignupServlet extends BaseServlet {
 
-	public static final String htmlPath = "html/signup.html";
+	public SignupServlet() {
+		super(true);
+		// TODO Auto-generated constructor stub
+	}
+
 	public enum ErrorMessage {
 		USERNAME_TAKEN("Username is taken. Try again."),
 		MISSING_INFO("All fields must be filled.");
@@ -33,22 +37,6 @@ public class SignupServlet extends HttpServlet {
 			this.message = message;
 		}
 		public String message;
-	}
-	Database database = null;
-	
-	@Override
-	public void destroy() {
-		//Shut down the database connection..
-		database.shutdown();
-		super.destroy();
-	}
-
-	@Override
-	public void init() throws ServletException {
-		//Initialize the database connection..
-		database = new Database();
-		
-		super.init();
 	}
 
 	@Override
@@ -82,25 +70,13 @@ public class SignupServlet extends HttpServlet {
 	}
 	
 	public String getHTMLString(HttpServletRequest req, ErrorMessage error) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(req.getServletContext().getRealPath(htmlPath)));
-		String line = null;
-		StringBuffer buffer = new StringBuffer();
-		while ((line=reader.readLine())!=null) 
-			buffer.append(line);
-		reader.close();
-		
-		
-	
-		String errorMessage = "";
+		String errorMessage;
 		if (error != null) 
 			errorMessage = "<p style=\"color:red;\">"+error.message+"</p>";
+		else
+			errorMessage = "";
 	
-		/**
-		 * Params:
-		 * 0 -
-		 * 1 - 
-		 */
-		return MessageFormat.format(buffer.toString(), Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMessage);
+		return readFileText(getServletContext().getRealPath("html/signup.html"), Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMessage);
 	}
 	
 }
