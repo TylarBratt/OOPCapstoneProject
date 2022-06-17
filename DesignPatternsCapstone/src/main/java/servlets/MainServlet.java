@@ -12,20 +12,24 @@ import beans.User;
 
 @WebServlet("")
 
+/**
+ * 
+ * This is the first landing page the user should see when visiting the site.
+ * The only purpose of this servlet is to redirect the user to either the login or home
+ * screen depending on their login status.
+ *
+ */
 public class MainServlet extends HttpServlet {
-	
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		//Obtain the user account from the current session.
 		User user = (User)req.getSession().getAttribute("user");
 		
-		if (user != null) {
-			//If user already logged in, redirect to the home page.
+		//If a logged-in user exists for this session, redirect to the home page. Otherwise redirect to the login screen..
+		if (user != null) 
 			resp.sendRedirect(req.getContextPath()+"/home");
-		}
-		else {
-			//Otherwise redirect to the login screen.
+		else 
 			resp.sendRedirect(req.getContextPath()+"/login");
-		}
 	}
 }

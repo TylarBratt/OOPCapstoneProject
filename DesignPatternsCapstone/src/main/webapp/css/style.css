@@ -41,24 +41,34 @@ body {
 .navbar li a:hover {
 	background-color: #111;
 }
+.navbar li a.active:hover {
+	background-color: #028655;
+}
 
 .navbar li .active {
 	background-color: #04AA6D;
 }
-
+.product {
+	background-color: #e0e0e0;
+	overflow: hidden;
+	padding: 10px;
+	margin: 5px;
+}
 .product h3 {
-	padding :10px;
+
 	
 }
 
 .product img {
+	float :left;
+	clear :left;
 	background-color: linen;
+	width: 60px;
+	height: 60px;
+	margin-right: 10px
 }
-.product *{
-	display :inline;
-}
-.product {
-	align-items :center;
-	display :flex;
+.product-name {
+	font-weight: bold;
+	
 	
 }

@@ -22,22 +22,9 @@ import beans.User;
 public class HomeServlet extends BaseServlet {
 	public static final String htmlPath = "html/home.html";
 	
-	Database database = null;
-	@Override
-	public void destroy() {
-		//Shut down the database connection..
-		database.shutdown();
-		super.destroy();
+	public HomeServlet(){
+		super(true);
 	}
-
-	@Override
-	public void init() throws ServletException {
-		//Initialize the database connection..
-		database = new Database();
-		
-		super.init();
-	}
-
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		//If user is not logged in, redirect to login screen.
@@ -61,34 +48,13 @@ public class HomeServlet extends BaseServlet {
 	
 	public String getHTMLString(HttpServletRequest req) throws IOException {
 		
-		StringBuffer page = new StringBuffer();
-		
-		page.append(getFileText(req.getServletContext().getRealPath(htmlPath)));
-		
-		
-		String css = "<style>"+getFileText(req.getServletContext().getRealPath("/css/style.css"))+"</style>";
-		
-		
 		User user = (User)req.getSession().getAttribute("user");
 		String loginMessage = "";
 		if (user != null) {
 			loginMessage = "<h2>Greetings "+user.userName+"!</h2>";
 		}
 		
-		/**
-		 * Params:
-		 * 0 - App name
-		 * 1 - Slogan
-		 */
-		
-		//Get products html..
-		StringBuffer products = new StringBuffer();
-		for (Product product : database.getProductsOwnedByUser(user.id)) {
-			products.append(MessageFormat.format(getFileText(req.getServletContext().getRealPath("html/product-list-item.html")), product.imagePath, product.name));
-		}
-		
-		
-		return MessageFormat.format(page.toString(), loginMessage, products, css, user.userName);
+		return readFileText(getServletContext().getRealPath(htmlPath), loginMessage, "", generateCSS(), user.userName);
 	}
 	
 }
