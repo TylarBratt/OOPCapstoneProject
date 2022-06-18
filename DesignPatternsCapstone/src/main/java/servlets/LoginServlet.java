@@ -47,13 +47,18 @@ public class LoginServlet extends BaseServlet {
 			resp.sendRedirect(req.getContextPath()+"/home");
 		}
 		else {
-			//Reload the page with an error message..
+			
 			resp.getWriter().write(getHTMLString(req,"Username or password is incorrect."));
+			
 		}
 	}
 	
 	public String getHTMLString(HttpServletRequest req, String errorMsg) throws IOException {
+		//Check the parameters for an error condition..
 		
+		
+				
+
 		//Read the html file and insert data for the specified arguments..
 		return readFileText("html/login.html",Common.appName, Common.appSlogan, errorMsg != null ? errorMsg : "");
 	}

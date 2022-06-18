@@ -42,7 +42,7 @@ public class SignupServlet extends BaseServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		PrintWriter writer = resp.getWriter();
-		writer.write(getHTMLString(req, null));
+		writer.write(getHTMLString(req));
 	}
 
 	@Override
@@ -64,19 +64,23 @@ public class SignupServlet extends BaseServlet {
 			resp.sendRedirect(req.getContextPath()+"/home");
 		}
 		else {
-			//Return the web page html
-			resp.getWriter().write(getHTMLString(req, ErrorMessage.USERNAME_TAKEN));
+			//Reload the page with "err" parameter set to 1
+			resp.sendRedirect(req.getContextPath()+"/signup?err=1");
 		}
 	}
 	
-	public String getHTMLString(HttpServletRequest req, ErrorMessage error) throws IOException {
-		String errorMessage;
-		if (error != null) 
-			errorMessage = "<p style=\"color:red;\">"+error.message+"</p>";
+	public String getHTMLString(HttpServletRequest req) throws IOException {
+		
+		//Check the parameters for an error condition..
+		String errorCode = req.getParameter("err");
+		String errorMsg;
+		if (errorCode != null)
+			errorMsg = "User is taken. Try again.";
 		else
-			errorMessage = "";
+			errorMsg = "";
+		
 	
-		return readFileText("html/signup.html", Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMessage);
+		return readFileText("html/signup.html", Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMsg);
 	}
 	
 }
