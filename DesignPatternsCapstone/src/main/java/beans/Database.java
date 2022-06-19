@@ -191,5 +191,24 @@ public class Database {
 		
 		return output;
 	}
+	
+	public Product getProductWithID(long productID) {
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement("SELECT * FROM product WHERE id = ?;");
+			statement.setLong(1, productID);
+			ResultSet set = statement.executeQuery();
+
+			if (set.next()) 
+				return new Product(set);
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		return null;
+	}
 
 }
