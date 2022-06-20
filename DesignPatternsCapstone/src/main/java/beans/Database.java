@@ -55,6 +55,9 @@ public class Database {
 		}
 	}
 	
+	/*
+	 * Logs in a user if the provided credentials match an entry in the user database.
+	 */
 	public User login(String userName, String password) {
 		ResultSet results = null;
 		try {
@@ -81,6 +84,11 @@ public class Database {
 		}
 		return null;
 	}
+	
+	/*
+	 * Creates a new user account in the database and logs in with that user account.
+	 * We must do this via a stored procedure because we need to create AND return an entry at the same time. 
+	 */
 	public User createAccount(String userName, String password) {
 		try {
 			PreparedStatement statement = connection.prepareStatement("CALL insert_user(?,?,?,?);");

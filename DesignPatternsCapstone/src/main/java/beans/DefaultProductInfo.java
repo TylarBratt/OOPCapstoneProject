@@ -2,6 +2,12 @@ package beans;
 
 import java.util.Random;
 
+/**
+ * Enums used for generating the random products which are assigned to a new user. 
+ * 
+ * TODO: Move this data to its own table in the database and make the 
+ * database perform the generation of products via a stored procedure.
+ */
 public enum DefaultProductInfo {
 	BURGER("burger.png", "Deluxe Burger"),
 	BURGER_DOUBLE("burgerDouble.png", "Double Deluxe Burger"),
