@@ -1,5 +1,6 @@
 package beans;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,17 +10,24 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import servlets.BaseServlet;
+
 
 public class Database {
+	public final BaseServlet context;
 	public Connection connection = null;
 	
-	public Database() {
+	public Database(BaseServlet context) {
+		//Store a reference to the servlet context for which this database connection is associated.
+		this.context = context;
 		//Get connection to database.
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("MySQL JDBC Driver Registered!");
 			
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+Common.databaseSchema, Common.databaseUser, Common.databasePassword);
+			//Create database connection. We append allowMultiQueries flag so we can process multiple queries at a time.
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+Common.databaseSchema+"?allowMultiQueries=true", Common.databaseUser, Common.databasePassword);
+			
 			
 		} catch (ClassNotFoundException e) {
 			System.out.print("MySQL JDBC driver not found!");
@@ -210,5 +218,6 @@ public class Database {
 		
 		return null;
 	}
+	
 
 }

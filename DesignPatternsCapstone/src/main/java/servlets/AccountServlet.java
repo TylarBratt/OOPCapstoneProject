@@ -38,7 +38,7 @@ public class AccountServlet extends BaseServlet {
 		StringBuffer products = new StringBuffer();
 		
 		for (Product product : database.getProductsOwnedByUser(user.id)) 
-			products.append(readFileText("html/product-list-item.html", product.imagePath, product.name, product.id));
+			products.append(readFileText("html/product-list-item-controls.html", product.imagePath, product.name, product.id));
 		
 		//If there are no products to display, display a friendly message.
 		if (products.length() == 0)

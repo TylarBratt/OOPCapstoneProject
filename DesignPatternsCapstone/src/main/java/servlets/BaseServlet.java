@@ -34,7 +34,7 @@ public class BaseServlet extends HttpServlet{
 	public void init() throws ServletException {
 		//Initialize the database connection, if requested.
 		if (isUsingDatabase) 
-			database = new Database();
+			database = new Database(this);
 		
 		super.init();
 	}
@@ -44,7 +44,7 @@ public class BaseServlet extends HttpServlet{
 	}
 
 	
-	String readFileText(String path, Object ...arguments) throws IOException {
+	public String readFileText(String path, Object ...arguments) throws IOException {
 		//Create a new buffered reader to load the file with.
 		BufferedReader reader = new BufferedReader(new FileReader(getServletContext().getRealPath(path)));
 		StringBuffer out = new StringBuffer();

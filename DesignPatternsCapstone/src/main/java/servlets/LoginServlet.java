@@ -27,30 +27,40 @@ public class LoginServlet extends BaseServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//Obtain the login credentials from the request. 
-		String username = req.getParameter("username");
-		String password = req.getParameter("password");
-		
-		//Try logging in with the provided credentials..
-		User user = database.login(username,  password);
-		
-		// If the login was successful...
-		if (user != null) {
-			//Print a debug message to the console.
-			System.out.println("Logged in as user: #"+user.id+" "+user.userName);
-			
-			//Store the user data to the session so we can remain logged in.
-			HttpSession session = req.getSession();
-			session.setAttribute("user", user);
-			
-			//Redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/home");
+		String action = req.getParameter("action");
+		switch (action) {
+			case "login":
+				//Obtain the login credentials from the request. 
+				String username = req.getParameter("username");
+				String password = req.getParameter("password");
+				
+				//Try logging in with the provided credentials..
+				User user = database.login(username,  password);
+				
+				// If the login was successful...
+				if (user != null) {
+					//Print a debug message to the console.
+					System.out.println("Logged in as user: #"+user.id+" "+user.userName);
+					
+					//Store the user data to the session so we can remain logged in.
+					HttpSession session = req.getSession();
+					session.setAttribute("user", user);
+					
+					//Redirect to the home page.
+					resp.sendRedirect(req.getContextPath()+"/home");
+					return;
+				} else resp.getWriter().write(getHTMLString(req,"Username or password is incorrect."));
+				
+				break;
+			default:
+				resp.getWriter().write(getHTMLString(req,"The request was invalid."));
 		}
-		else {
+		
+		
+		
 			
-			resp.getWriter().write(getHTMLString(req,"Username or password is incorrect."));
 			
-		}
+		
 	}
 	
 	public String getHTMLString(HttpServletRequest req, String errorMsg) throws IOException {

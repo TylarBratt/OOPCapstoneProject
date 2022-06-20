@@ -57,21 +57,26 @@ body {
 
 .product img {
 	background-color: linen;
-	width: 60px;
-	height: 60px;
+	width: 45px;
+	height: 45px;
 	margin-right: 10px;
-	float: left;
+	vertical-align: middle;
 }
 .product-name {
+	display: inline;
 	font-weight: bold;
-	
-	line-height: 0px;
+	font-size: 15px;
+	margin-top: 0px;
 }
-.make-auction-link {
+.product .button-link{
+	display: inline;
+	float: right;
+}
+.button-link {
 	font-size: small;
+	
 	text-decoration: none;
 	background-color: #333;
 	color: white;
 	padding: 5px;
-	float: right;
 }
