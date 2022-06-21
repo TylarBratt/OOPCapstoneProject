@@ -24,7 +24,7 @@ CREATE TABLE `product` (
   UNIQUE KEY `id_UNIQUE` (`id`)
 );
 CREATE TABLE `bid` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `ammount` int NOT NULL,
   `user_id` int NOT NULL,
   `date` datetime NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `bid` (
 );
 
 CREATE TABLE `auction` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `product_id` int NOT NULL,
   `user_id` int NOT NULL,
   `start_date` datetime NOT NULL,
