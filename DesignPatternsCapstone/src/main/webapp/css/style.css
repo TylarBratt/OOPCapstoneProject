@@ -49,31 +49,37 @@ body {
 	background-color: #04AA6D;
 }
 .product {
-	background-color: #e0e0e0;
+	background-color: #e1e1e1;
 	overflow: auto;
 	padding: 10px;
 	margin: 5px;
+	text-align: center;
+	display: inline-block;
+	border-radius: 10px;
 }
 
 .product img {
+	display: block;
 	background-color: linen;
-	width: 45px;
-	height: 45px;
-	margin-right: 10px;
-	vertical-align: middle;
+	width: 100px;
+	height: 100px;
+	margin-bottom: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	border-radius: 5px;
 }
 .product-name {
-	display: inline;
 	font-weight: bold;
 	font-size: 18px;
+	margin: 5px;
 }
 .product .button-link{
-	display: inline;
-	float: right;
+	display: inline-block;
+	
 }
 .button-link {
 	font-size: small;
-	
+	border-radius: 5px;
 	text-decoration: none;
 	background-color: #333;
 	color: white;
