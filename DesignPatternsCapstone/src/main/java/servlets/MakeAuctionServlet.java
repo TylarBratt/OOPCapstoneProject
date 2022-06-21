@@ -55,9 +55,10 @@ public class MakeAuctionServlet extends BaseServlet {
 		//Create an auction in the database and return a user.
 		Auction auction = database.createAuction(user.id, productID, startingBid, durationMins);
 		if (auction != null)
-			System.out.println("YAY!");
+			resp.sendRedirect(req.getContextPath()+"/account");
+		else
+			resp.getWriter().write(getHTMLString(req));
 		
-		 resp.getWriter().write(getHTMLString(req));
 	}
 	
 	public String getHTMLString(HttpServletRequest req) throws IOException {
@@ -71,7 +72,7 @@ public class MakeAuctionServlet extends BaseServlet {
 			System.out.println("product id:"+productID);
 			Product product = database.getProductWithID(productID);
 			if (product != null) {
-				productHTML = readFileText("html/product-list-item.html", product.imagePath, product.name, product.id);
+				productHTML = readFileText("html/product.html", product.imagePath, product.name, "");
 			}
 		
 		

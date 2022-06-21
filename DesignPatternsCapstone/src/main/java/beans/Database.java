@@ -192,5 +192,23 @@ public class Database {
 		throw new RuntimeException("Create auction failed.");
 	}
 	
+	public Auction getAuctionForProduct(long productID) {
+		try {
+			PreparedStatement statement = connection.prepareStatement("SELECT * FROM auction JOIN product ON auction.product_id = product.id JOIN user ON product.owner_id = user.id WHERE product_id = ?;"); //TODO: Make static?
+			statement.setLong(1, productID);
+			ResultSet results = statement.executeQuery();
+
+			if (results.next()) 
+				return new Auction(results);
+		
+						
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		//No matching auction found.
+		return null;
+	}
+	
 
 }
