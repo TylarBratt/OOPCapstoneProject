@@ -25,8 +25,8 @@ public class Database {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("MySQL JDBC Driver Registered!");
 			
-			//Create database connection. We append allowMultiQueries flag so we can process multiple queries at a time.
-			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+Common.databaseSchema+"?allowMultiQueries=true", Common.databaseUser, Common.databasePassword);
+			//Create database connection. Append allowMultiQueries flag if you need to process multiple queries at a time.
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+Common.databaseSchema/*+"?allowMultiQueries=true"*/, Common.databaseUser, Common.databasePassword);
 			
 			
 		} catch (ClassNotFoundException e) {
@@ -69,15 +69,8 @@ public class Database {
 			
 			// If a user was returned as a result, then login was successful. 
 			// Store the userID to the current session to indicate the user has logged in.
-			if (results.next()) {
-				return new User(results.getLong("id"),
-						results.getString("username"),
-						results.getString("password"),
-						results.getLong("credits"),
-						User.Role.valueOf(results.getString("role")));
-				
-				
-			}
+			if (results.next()) 
+				return new User(results);
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -99,9 +92,9 @@ public class Database {
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {
-				User user = new User(results.getLong("id"),results.getString("username"), results.getString("password"),results.getLong("credits"), User.Role.valueOf(results.getString("role")));
+				User user = new User(results);
 				
-				//TODO: Generate a series of test products for this user..
+				//Generate a series of test products for this user..
 				for (int i = 0; i < Common.newUserProductCount; i++) {
 					DefaultProductInfo productInfo = DefaultProductInfo.getRandomItem();
 					this.createProduct(productInfo.description , productInfo.path, user.id);
@@ -116,57 +109,7 @@ public class Database {
 
 	}
 	
-	public List<Log> getLogs() {
-
-		List<Log> output = new ArrayList<>();
-		
-		try {
-			String query = "SELECT * FROM log;";
-			ResultSet set = connection.createStatement().executeQuery(query);
-
-			while (set.next()) {
-				output.add(new Log(set.getLong("id"),set.getString("title"), set.getString("content"), set.getString("timestamp")));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		
-		
-		return output;
-	}
 	
-	public void removeLog(long index) {
-		try {
-			//DELETE FROM table_name WHERE condition;
-			String insertQuery = "DELETE FROM log WHERE id=?;";
-			
-			PreparedStatement statement = connection.prepareStatement(insertQuery);
-			statement.setLong(1, index);
-			int rowsAffected = statement.executeUpdate();
-			System.out.println(rowsAffected + " rows deleted.");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	public void updateLog(long index, String title, String content) {
-		
-		try {
-			String insertQuery = "UPDATE log SET title=?, content=? WHERE id=?;";
-			
-			PreparedStatement statement = connection.prepareStatement(insertQuery);
-			statement.setString(1, title);
-			statement.setString(2, content);
-			statement.setLong(3, index);
-			int rowsAffected = statement.executeUpdate();
-			System.out.println(rowsAffected + " rows updated.");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-	}
 	
 	Product createProduct(String name, String imagePath, long ownerID) {
 		try {

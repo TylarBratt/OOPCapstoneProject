@@ -1,5 +1,8 @@
 package beans;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class User {
 	public enum Role {
 		USER,
@@ -11,12 +14,13 @@ public class User {
 	public final String password;
 	public final long credits;
 	public final Role role;
-	public User(long id, String userName, String password, long credits, Role role){
-		this.id = id;
-		this.userName = userName;
-		this.password = password;
-		this.credits = credits;
-		this.role = role;
+	public User(ResultSet data) throws SQLException{
+		this.id = data.getLong("id");
+		this.userName = data.getString("username");
+		this.password = data.getString("password");
+		this.credits = data.getLong("credits");
+		this.role = User.Role.valueOf(data.getString("role"));
+		
 	}
 	
 }
