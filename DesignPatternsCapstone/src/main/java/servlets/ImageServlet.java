@@ -12,6 +12,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/*
+ * Servlet responsible for handling image requests. I couldn't figure out a way to directly link to static image files 
+ * using Tomcat Server so I created a servlet do manually accomplish the same thing. Local image path is
+ * specified using the "src" parameter.
+ */
 @WebServlet("/images")
 public class ImageServlet extends HttpServlet{
 

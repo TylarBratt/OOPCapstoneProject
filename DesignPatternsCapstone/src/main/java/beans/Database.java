@@ -170,5 +170,27 @@ public class Database {
 		return null;
 	}
 	
+	public Auction createAuction(long userID, long productID, long startPrice, long durationMins) throws RuntimeException {
+		//TODO: Make sure userID matches product owner ID.
+		try {
+			PreparedStatement statement = connection.prepareStatement("CALL make_auction(?,?,?);"); //TODO: Make static?
+			statement.setLong(1, productID);
+			statement.setLong(2, durationMins);
+			statement.setLong(3, startPrice);
+			ResultSet results = statement.executeQuery();
+
+			if (results.next()) {
+				System.out.println("Auction created successfully!");
+				return new Auction(results);
+			}
+						
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		throw new RuntimeException("Create auction failed.");
+	}
+	
 
 }
