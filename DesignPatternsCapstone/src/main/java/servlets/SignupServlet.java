@@ -17,7 +17,6 @@ import javax.servlet.http.HttpSession;
 
 import beans.Common;
 import beans.Database;
-import beans.Log;
 import beans.User;
 
 @WebServlet("/signup")
