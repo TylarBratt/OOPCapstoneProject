@@ -25,6 +25,7 @@ CREATE TABLE `product` (
 );
 CREATE TABLE `bid` (
   `id` int NOT NULL AUTO_INCREMENT,
+  auction_id int NOT NULL,
   `ammount` int NOT NULL,
   `user_id` int NOT NULL,
   `date` datetime NOT NULL,
