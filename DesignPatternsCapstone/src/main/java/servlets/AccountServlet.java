@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import beans.Auction;
 import beans.Product;
 import beans.User;
+import beans.navbar.LoggedInNavbar;
 
 @WebServlet("/account")
 
@@ -35,6 +36,7 @@ public class AccountServlet extends BaseServlet {
 		
 		User user = (User)req.getSession().getAttribute("user");
 		
+		
 		//Build the html for each product in the user's inventory..
 		StringBuffer products = new StringBuffer();
 		for (Product product : database.getProductsOwnedByUser(user.id)) {
@@ -52,7 +54,7 @@ public class AccountServlet extends BaseServlet {
 		if (products.length() == 0)
 			products.append("<p>You have no items in your inventory.</p>");
 	
-		return readFileText("html/account.html", generateCSS(), products, user.userName, user.credits);
+		return readFileText("html/account.html", generateCSS(), products, user.userName, user.credits, new LoggedInNavbar().getHTML("account"));
 	}
 
 	

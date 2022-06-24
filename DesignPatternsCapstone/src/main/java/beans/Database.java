@@ -197,8 +197,12 @@ public class Database {
 	public Auction getAuctionForProduct(long productID) {
 		try {
 			PreparedStatement statement = connection.prepareStatement(
-					"SELECT * FROM auction JOIN product ON auction.product_id = product.id JOIN user ON product.owner_id = user.id WHERE product_id = ?;"); // TODO:
-																																							// Make
+					"SELECT *, MAX(bid.ammount) max_bid FROM auction"+
+							" LEFT JOIN product ON auction.product_id = product.id"+
+							" LEFT JOIN bid ON auction.id = bid.auction_id"+
+							" LEFT JOIN user ON user.id = bid.user_id"+
+							" WHERE product.id = ?"+
+							" GROUP BY auction.id");																																// Make
 																																							// static?
 			statement.setLong(1, productID);
 			ResultSet results = statement.executeQuery();
@@ -219,7 +223,11 @@ public class Database {
 		
 		try {
 			PreparedStatement st = connection.prepareStatement(
-				"SELECT *, MAX(bid.ammount) max_bid FROM auction LEFT JOIN product ON auction.product_id = product.id LEFT JOIN bid ON auction.id = bid.auction_id LEFT JOIN user ON user.id = bid.user_id GROUP BY auction.id",
+				"SELECT *, MAX(bid.ammount) max_bid FROM auction"+
+						" LEFT JOIN product ON auction.product_id = product.id"+
+						" LEFT JOIN bid ON auction.id = bid.auction_id"+
+						" LEFT JOIN user ON user.id = bid.user_id"+
+						" GROUP BY auction.id",
 				ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			ResultSet results = st.executeQuery();
 			

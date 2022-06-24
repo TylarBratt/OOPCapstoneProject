@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import beans.Database;
+import beans.navbar.Navbar;
 
 /**
  * 
@@ -65,11 +66,11 @@ public class BaseServlet extends HttpServlet{
 			//Stop the program immediately an error occurs.
 			throw new RuntimeException("Error reading file text!");
 		}
-		
-		
-		
 	}
 	
+	public String getHTML(String title, Navbar navbar, String navbarSelection, String body) {
+		return readFileText("html/template.html", title, generateCSS(), navbar.getHTML(navbarSelection), body);
+	}
 	public String generateCSS() {
 		return "<style>"+readFileText("/css/style.css")+"</style>";
 	}

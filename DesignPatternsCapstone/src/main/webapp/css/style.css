@@ -56,6 +56,7 @@ body {
 	text-align: center;
 	display: inline-block;
 	border-radius: 10px;
+	vertical-align: top;
 }
 
 .product img {

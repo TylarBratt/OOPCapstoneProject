@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,8 +21,12 @@ import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
 import beans.User;
+import beans.navbar.LoggedInNavbar;
 
-@WebServlet("/home")
+@WebServlet(
+	name = "home",
+	urlPatterns = "/home"
+)
 
 public class HomeServlet extends BaseServlet {
 	public static final String htmlPath = "html/home.html";
@@ -52,41 +57,48 @@ public class HomeServlet extends BaseServlet {
 	public String getHTMLString(HttpServletRequest req) {
 
 		User user = (User) req.getSession().getAttribute("user");
-		String loginMessage = "";
-		String newMessage = null;
-		String finalMessage = null;
+
+		StringBuilder newMessage = new StringBuilder();
 		
 		
-		loginMessage = "<h2>Greetings " + user.userName + "!</h2></br><h2>Auctions</h2></br><ul list-style: none>";
-		newMessage = loginMessage;
+
+		newMessage.append("<h2>Auctions</h2>");
 		
-		//For each result in the result set.
-		for (Auction auction : database.getAuctions())
-		{
-			//Obtain the product name
-			//String productName = srs.getString("product.name");
-			//req.setAttribute("product" + i, productName);
+		List<Auction> auctions = database.getAuctions();
+		if (auctions.size() > 0) {
+			newMessage.append("<ul list-style: none>");
 			
+			//For each result in the result set.
+			for (Auction auction : database.getAuctions())
+			{
+				String intro = "<li><form action=\"BidServlet\" method=\"post\">";
+				String body1 = "<input type=hidden name=\"productName\" value=";
 
-			String intro = "<li><form action=\"BidServlet\" method=\"post\"><h3>Product Name: </h3><h4 name=productName>";
-			String body1 = "</h4><input type=hidden name=\"productName\" value=";
-
-			String body2 = "/><h3>Current highest Bid: </h3><h4>";
-			// highest bid from auction goes here
-			String body3 = "</h4><h3>Input your bid:</h3><input type=\"number\" name=\"newestBid\"/><input type=hidden name=\"location\"</li>\n";
-			String body4 = "<input type=hidden name=\"id\" value=";
-			String link = "><input type = \"submit\" value=\"Bid\"/>";
-			newMessage = newMessage + intro + auction.productName + body1 + auction.productName + body2 + auction.getCurrentPrice() + body3 + body4
-					+ Long.toString(auction.id) + link;
-			System.out.println(newMessage);
+				String body2 = "/><h3>Current highest Bid: </h3><h4>";
+				// highest bid from auction goes here
+				String body3 = "</h4><h3>Input your bid:</h3><input type=\"number\" name=\"newestBid\"/><input type=hidden name=\"location\"</li>\n";
+				String body4 = "<input type=hidden name=\"id\" value=";
+				String link = "><input type = \"submit\" value=\"Bid\"/></form>";
+				String productInfo = intro + body1 + auction.productName + body2 + auction.getCurrentPrice() + body3 + body4
+						+ Long.toString(auction.id) + link;
+				
+				Product product = database.getProductWithID(auction.productID);
+				if (product != null) 
+					newMessage.append(readFileText("html/product.html", product.imagePath, product.name, productInfo));
+				
+			}
+			
+			newMessage.append("</ul>");
 		}
-	
-		finalMessage = newMessage + "</ul>";
+		else
+			newMessage.append("<h3>None</h3>");
+		
+		
 		
 		//Print the message for debugging purposes.
-		System.out.println(finalMessage);
+		//System.out.println(finalMessage);
 
-		return readFileText(htmlPath, finalMessage, "", generateCSS(), user.userName);
+		return readFileText(htmlPath, newMessage.toString(), new LoggedInNavbar().getHTML("home"), generateCSS(), user.userName);
 	}
 
 }

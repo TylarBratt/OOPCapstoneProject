@@ -17,6 +17,7 @@ import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
 import beans.User;
+import beans.navbar.LoggedInNavbar;
 
 @WebServlet("/make-auction")
 
@@ -62,26 +63,22 @@ public class MakeAuctionServlet extends BaseServlet {
 	}
 	
 	public String getHTMLString(HttpServletRequest req) throws IOException {
+
+		StringBuilder body = new StringBuilder();
 		
-	
-		
-		String productHTML = "";
+		body.append("<h1>Create An Auction</h1>");
+		//Add the product image.
 		long productID = Long.parseLong(req.getParameter("id"));
+		Product product = database.getProductWithID(productID);
+		if (product != null) 
+			body.append(readFileText("html/product.html", product.imagePath, product.name, ""));
+		
+
+		//Add the make auction form..
+		body.append(readFileText("html/make-auction.html", productID));
 		
 		
-			System.out.println("product id:"+productID);
-			Product product = database.getProductWithID(productID);
-			if (product != null) {
-				productHTML = readFileText("html/product.html", product.imagePath, product.name, "");
-			}
-		
-		
-		
-		
-		
-		User user = (User)req.getSession().getAttribute("user");
-		
-		return readFileText("html/make-auction.html", generateCSS(), productHTML, productID);
+		return getHTML("FleaBay - Create Auction", new LoggedInNavbar(), "account",body.toString() );
 	}
 	
 }
