@@ -44,24 +44,33 @@ public class BaseServlet extends HttpServlet{
 	}
 
 	
-	public String readFileText(String path, Object ...arguments) throws IOException {
-		//Create a new buffered reader to load the file with.
-		BufferedReader reader = new BufferedReader(new FileReader(getServletContext().getRealPath(path)));
-		StringBuffer out = new StringBuffer();
-		String line = null;
-		while ((line=reader.readLine())!=null) 
-			out.append(line);
+	public String readFileText(String path, Object ...arguments) {
+		try {
+			//Create a new buffered reader to load the file with.
+			BufferedReader reader = new BufferedReader(new FileReader(getServletContext().getRealPath(path)));
+			StringBuffer out = new StringBuffer();
+			String line = null;
+			while ((line=reader.readLine())!=null) 
+				out.append(line);
+			
+			reader.close();
+			
+			//If there are additional arguments passed in, include them. Otherwise return the raw string.
+			if (arguments.length > 0)
+				return MessageFormat.format(out.toString(), arguments);
+			else
+				return out.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			//Stop the program immediately an error occurs.
+			throw new RuntimeException("Error reading file text!");
+		}
 		
-		reader.close();
 		
-		//If there are additional arguments passed in, include them. Otherwise return the raw string.
-		if (arguments.length > 0)
-			return MessageFormat.format(out.toString(), arguments);
-		else
-			return out.toString();
+		
 	}
 	
-	public String generateCSS() throws IOException {
+	public String generateCSS() {
 		return "<style>"+readFileText("/css/style.css")+"</style>";
 	}
 	

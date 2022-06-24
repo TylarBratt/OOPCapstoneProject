@@ -25,12 +25,12 @@ CREATE TABLE `product` (
 );
 CREATE TABLE `bid` (
   `id` int NOT NULL AUTO_INCREMENT,
-  auction_id int NOT NULL,
   `ammount` int NOT NULL,
   `user_id` int NOT NULL,
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  auction_id int NOT NULL
 );
 
 CREATE TABLE `auction` (

@@ -169,8 +169,7 @@ public class Database {
 		return null;
 	}
 
-	public Auction createAuction(long userID, long productID, long startPrice, long durationMins)
-			throws RuntimeException {
+	public boolean createAuction(long userID, long productID, long startPrice, long durationMins) {
 		// TODO: Make sure userID matches product owner ID.
 		try {
 			PreparedStatement statement = connection.prepareStatement("CALL make_auction(?,?,?);"); // TODO: Make
@@ -182,14 +181,17 @@ public class Database {
 
 			if (results.next()) {
 				System.out.println("Auction created successfully!");
-				return new Auction(results);
+				return true;
 			}
+			else return false;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new RuntimeException("Create auction failed.");
 		}
+		
+		
 
-		throw new RuntimeException("Create auction failed.");
 	}
 
 	public Auction getAuctionForProduct(long productID) {
@@ -212,13 +214,26 @@ public class Database {
 		return null;
 	}
 
-	public ResultSet getAuctions() throws SQLException {
-		PreparedStatement st = connection.prepareStatement(
-				"SELECT * FROM auction LEFT JOIN product ON auction.product_id = product.id LEFT JOIN bid ON auction.id = bid.auction_id",
+	public List<Auction> getAuctions() {
+		List<Auction> auctions = new ArrayList<Auction>();
+		
+		try {
+			PreparedStatement st = connection.prepareStatement(
+				"SELECT *, MAX(bid.ammount) max_bid FROM auction LEFT JOIN product ON auction.product_id = product.id LEFT JOIN bid ON auction.id = bid.auction_id LEFT JOIN user ON user.id = bid.user_id GROUP BY auction.id",
 				ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-		ResultSet srs = st.executeQuery();
-		return srs;
-
+			ResultSet results = st.executeQuery();
+			
+			//For each row in the result, create a new auction object and add it to the list of auctions..
+			while (results.next())
+				auctions.add(new Auction(results));
+			
+			return auctions;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error getting auctions.");
+		}
+		
 	}
 
 	public int getProductWithName(String name) throws SQLException {

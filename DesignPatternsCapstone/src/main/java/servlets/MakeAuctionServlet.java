@@ -53,8 +53,8 @@ public class MakeAuctionServlet extends BaseServlet {
 		long durationMins = Long.parseLong(req.getParameter("duration"));
 		
 		//Create an auction in the database and return a user.
-		Auction auction = database.createAuction(user.id, productID, startingBid, durationMins);
-		if (auction != null)
+		boolean success = database.createAuction(user.id, productID, startingBid, durationMins);
+		if (success)
 			resp.sendRedirect(req.getContextPath()+"/account");
 		else
 			resp.getWriter().write(getHTMLString(req));
