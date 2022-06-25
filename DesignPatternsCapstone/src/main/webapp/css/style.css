@@ -56,6 +56,7 @@ body {
 	text-align: center;
 	display: inline-block;
 	border-radius: 10px;
+	vertical-align: top;
 }
 
 .product img {
@@ -67,11 +68,6 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 	border-radius: 5px;
-}
-.product-name {
-	font-weight: bold;
-	font-size: 18px;
-	margin: 5px;
 }
 .product .button-link{
 	display: inline-block;

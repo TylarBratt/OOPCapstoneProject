@@ -14,13 +14,17 @@ public class User {
 	public final String password;
 	public final long credits;
 	public final Role role;
-	public User(ResultSet data) throws SQLException{
+
+	public User(ResultSet data) throws SQLException {
 		this.id = data.getLong("id");
 		this.userName = data.getString("username");
 		this.password = data.getString("password");
 		this.credits = data.getLong("credits");
 		this.role = User.Role.valueOf(data.getString("role"));
-		
+
 	}
-	
+
+	public long getid() {
+		return id;
+	}
 }

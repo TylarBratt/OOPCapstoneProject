@@ -25,12 +25,12 @@ CREATE TABLE `product` (
 );
 CREATE TABLE `bid` (
   `id` int NOT NULL AUTO_INCREMENT,
-  auction_id int NOT NULL,
   `ammount` int NOT NULL,
   `user_id` int NOT NULL,
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  auction_id int NOT NULL
 );
 
 CREATE TABLE `auction` (
@@ -44,10 +44,6 @@ CREATE TABLE `auction` (
 );
 
 insert into `user` (username, password, credits, role) values ("root", "root", "10001", "ADMIN");
-
-
-
-
 
 
 DROP PROCEDURE IF EXISTS insert_product;
@@ -80,3 +76,42 @@ WHERE auction.id = last_insert_id();
 END //
 DELIMITER ;
 
+
+-- TODO FINISH. PROCESS FINISHED AUCTIONS AND TRANSFER OWNERSHIP
+DROP PROCEDURE IF EXISTS `process_finished_auctions`;
+DELIMITER // 
+CREATE PROCEDURE `process_finished_auctions` ()
+BEGIN
+
+DECLARE v_max int;
+DECLARE v_counter int;
+
+
+CREATE TEMPORARY TABLE IF NOT EXISTS finished_auctions
+SELECT 
+	auction.id AS auction_id,
+    TIMESTAMPDIFF(SECOND,NOW(),DATE_ADD(start_date,interval duration_mins minute)) AS seconds_remaining,
+    bid.ammount AS top_bid,
+     bid.user_id AS top_bidder
+FROM auction 
+	LEFT JOIN product ON auction.product_id = product.id
+    LEFT JOIN bid ON bid.auction_id = auction.id
+	LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount WHERE other.id IS NULL;
+
+CREATE TEMPORARY TABLE IF NOT EXISTS output (
+	test varchar(80)
+);
+
+-- For each item in the finished_auctions...
+SELECT COUNT(*) INTO v_max FROM finished_auctions;
+SELECT 0 into v_counter;
+WHILE v_counter < v_max DO
+	INSERT INTO output values ("Fruity!");
+	SET v_counter=v_counter+1;
+END WHILE;
+
+SELECT * FROM OUTPUT;
+DROP TABLE output;
+
+END //
+DELIMITER ;

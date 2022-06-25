@@ -1,28 +1,6 @@
-<!DOCTYPE html>
-
-<html>
-<head>
-<meta charset="ISO-8859-1">
-<title>Create Auction - FleaBay</title>
-{0} <!-- CSS -->
-</head>
-<body>
-	<ul class="navbar">
-		<li><a href="home">Home</a></li>
-		<li style="float:right"><a href="logout">Logout</a></li>
-		<li style="float:right"><a class="active" href="account">Account</a></li>
-	</ul>
-		
-	<h1>Create An Auction</h1>
-	{1}
-	
-	<form method="post">
-		<label>Starting Price (credits):</label><input type="number" name="price"  size=20 maxlength=60 required><br>
-		<label>Auction Duration (minutes):</label><input type="number" name="duration" size=20 maxlength=60 required><br>
-		<input type="hidden" name="product" value={2}>
-		<input type="submit" value="Start Auction" id="makeAuction">
-		
-	</form>
-	
-</body>
-</html>
+<form method="post">
+	<label>Starting Price (credits):</label><input type="number" name="price"  size=20 maxlength=60 required><br>
+	<label>Auction Duration (minutes):</label><input type="number" name="duration" size=20 maxlength=60 required><br>
+	<input type="hidden" name="product" value={0}>
+	<input type="submit" value="Start Auction" id="makeAuction">
+</form>
