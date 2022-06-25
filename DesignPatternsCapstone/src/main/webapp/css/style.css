@@ -69,11 +69,6 @@ body {
 	margin-right: auto;
 	border-radius: 5px;
 }
-.product-name {
-	font-weight: bold;
-	font-size: 18px;
-	margin: 5px;
-}
 .product .button-link{
 	display: inline-block;
 	

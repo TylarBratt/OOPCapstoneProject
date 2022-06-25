@@ -27,10 +27,13 @@ public class Auction {
 	
 	public long getCurrentPrice() {
 		//Return value of the max bid, if there is one, otherwise return the starting price.
-		boolean hasBid = maxBid > 0;
-		if (hasBid) 
+		if (hasBid()) 
 			return maxBid;
 		else
 			return startPrice;
+	}
+	
+	public boolean hasBid() {
+		return maxBid > 0;
 	}
 }
