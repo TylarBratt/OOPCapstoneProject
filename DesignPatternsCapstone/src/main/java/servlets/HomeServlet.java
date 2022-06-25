@@ -29,6 +29,7 @@ import beans.navbar.LoggedInNavbar;
 )
 
 public class HomeServlet extends BaseServlet {
+
 	public static final String htmlPath = "html/home.html";
 
 	public HomeServlet() {
@@ -76,7 +77,7 @@ public class HomeServlet extends BaseServlet {
 
 				String body2 = "/><h4>"+ (auction.hasBid()? "Highest Bid:":"Starting Price:")+"</h4><h5>";
 				// highest bid from auction goes here
-				String body3 = "</h5><input type=\"number\" placeholder=\"Enter your bid\" name=\"newestBid\"/><input type=hidden name=\"location\"</li>\n";
+				String body3 = "</h5><h4>Time Remaining: </h4><h5>" + Long.toString(auction.durationMins) + " minutes</h5><input type=\"number\" placeholder=\"Enter your bid\" name=\"newestBid\"/><input type=hidden name=\"location\"</li>\n";
 				String body4 = "<input type=hidden name=\"id\" value=";
 				String link = "><input type = \"submit\" value=\"Bid\"/></form>";
 				String productInfo = intro + body1 + auction.productName + body2 + auction.getCurrentPrice() + body3 + body4
