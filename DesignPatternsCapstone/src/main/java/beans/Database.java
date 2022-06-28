@@ -272,5 +272,28 @@ public class Database {
 		int id = result.getInt("id");
 		return id;
 	}
+	
+	/*
+	 * Logs in a user if the provided credentials match an entry in the user
+	 * database.
+	 */
+	public User getUser(long userID) {
+		ResultSet results = null;
+		try {
+			String query = "SELECT * FROM user WHERE id = ?";
+			PreparedStatement statement = connection.prepareStatement(query);
+			statement.setLong(1, userID);
+			results = statement.executeQuery();
+
+			// If a user was returned as a result, then login was successful.
+			// Store the userID to the current session to indicate the user has logged in.
+			if (results.next())
+				return new User(results);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }

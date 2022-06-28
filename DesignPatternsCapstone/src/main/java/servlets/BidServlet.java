@@ -40,9 +40,9 @@ public class BidServlet extends BaseServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        User user = (User) request.getSession().getAttribute("user");
+        Long userID = (Long) request.getSession().getAttribute("user");
 
-        if (user == null)
+        if (userID == null)
             response.sendRedirect(request.getContextPath() + "/login");
         else
             try {
@@ -60,7 +60,8 @@ public class BidServlet extends BaseServlet {
         int bidID = database.getnewID();
 
         bidID++;
-        User user = (User) request.getSession().getAttribute("user");
+        User user = database.getUser((Long) request.getSession().getAttribute("user"));
+        
         long userid2 = user.getid();
         int userid = (int) userid2;
         String amount = request.getParameter("newestBid");

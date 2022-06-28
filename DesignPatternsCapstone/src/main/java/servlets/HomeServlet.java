@@ -38,8 +38,8 @@ public class HomeServlet extends BaseServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// If user is not logged in, redirect to login screen.
-		User user = (User) req.getSession().getAttribute("user");
-		if (user == null)
+		Long userID = (Long) req.getSession().getAttribute("user");
+		if (userID == null)
 			resp.sendRedirect(req.getContextPath() + "/login");
 		else
 			resp.getWriter().write(getHTMLString(req));
@@ -56,7 +56,7 @@ public class HomeServlet extends BaseServlet {
 
 	public String getHTMLString(HttpServletRequest req) {
 
-		User user = (User) req.getSession().getAttribute("user");
+		User user = database.getUser((Long)req.getSession().getAttribute("user"));
 
 		StringBuilder newMessage = new StringBuilder();
 		

@@ -44,7 +44,7 @@ public class LoginServlet extends BaseServlet {
 					
 					//Store the user data to the session so we can remain logged in.
 					HttpSession session = req.getSession();
-					session.setAttribute("user", user);
+					session.setAttribute("user", user.id);
 					
 					//Redirect to the home page.
 					resp.sendRedirect(req.getContextPath()+"/home");

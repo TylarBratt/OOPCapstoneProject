@@ -24,8 +24,8 @@ public class AccountServlet extends BaseServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
 		//If user is not logged in, redirect to login screen.
-		User user = (User)req.getSession().getAttribute("user");
-		if (user == null) 
+		Long userID = (Long)req.getSession().getAttribute("user");
+		if (userID == null) 
 			resp.sendRedirect(req.getContextPath()+"/login");
 		else
 			resp.getWriter().write(getHTML(req));
@@ -34,7 +34,8 @@ public class AccountServlet extends BaseServlet {
 	
 	public String getHTML(HttpServletRequest req) throws IOException {
 		
-		User user = (User)req.getSession().getAttribute("user");
+		//Fetch the updated user info.
+		User user = database.getUser((Long)req.getSession().getAttribute("user"));
 		
 		
 		//Build the html for each product in the user's inventory..
