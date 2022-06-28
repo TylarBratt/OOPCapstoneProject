@@ -194,41 +194,27 @@ public class Database {
 
 	}
 
-	public Auction getAuctionForProduct(long productID) {
-		try {
-			PreparedStatement statement = connection.prepareStatement(
-					"SELECT *, MAX(bid.ammount) max_bid FROM auction"+
-							" LEFT JOIN product ON auction.product_id = product.id"+
-							" LEFT JOIN bid ON auction.id = bid.auction_id"+
-							" LEFT JOIN user ON user.id = bid.user_id"+
-							" WHERE product.id = ?"+
-							" GROUP BY auction.id");																																// Make
-																																							// static?
-			statement.setLong(1, productID);
-			ResultSet results = statement.executeQuery();
-
-			if (results.next())
-				return new Auction(results);
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
+	public Auction getActiveAuctionForProduct(long productID) {
+		for (Auction auction : getActiveAuctions()) 
+			if (auction.productID == productID)
+				return auction;
+		
+		
 		// No matching auction found.
 		return null;
 	}
 
-	public List<Auction> getAuctions() {
+	public List<Auction> getActiveAuctions() {
 		List<Auction> auctions = new ArrayList<Auction>();
 		
 		try {
 			PreparedStatement st = connection.prepareStatement(
-				"SELECT *, MAX(bid.ammount) max_bid FROM auction"+
-						" LEFT JOIN product ON auction.product_id = product.id"+
-						" LEFT JOIN bid ON auction.id = bid.auction_id"+
-						" LEFT JOIN user ON user.id = bid.user_id"+
-						" GROUP BY auction.id",
-				ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+					"SELECT * FROM auction"
+					+ "	LEFT JOIN product ON auction.product_id = product.id"
+					+ " LEFT JOIN user AS owner ON product.owner_id = owner.id"
+					+ " LEFT JOIN bid ON bid.auction_id = auction.id"
+					+ "	LEFT JOIN bid AS higher_bid ON higher_bid.auction_id = bid.auction_id AND bid.ammount < higher_bid.ammount"
+					+ " WHERE higher_bid.id IS NULL AND auction.is_active = 1;");
 			ResultSet results = st.executeQuery();
 			
 			//For each row in the result, create a new auction object and add it to the list of auctions..
@@ -274,8 +260,7 @@ public class Database {
 	}
 	
 	/*
-	 * Logs in a user if the provided credentials match an entry in the user
-	 * database.
+	 * Returns the current user info from the database for the user matching userID.
 	 */
 	public User getUser(long userID) {
 		ResultSet results = null;

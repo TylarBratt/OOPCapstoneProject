@@ -64,12 +64,12 @@ public class HomeServlet extends BaseServlet {
 
 		newMessage.append("<h2>Auctions</h2>");
 		
-		List<Auction> auctions = database.getAuctions();
+		List<Auction> auctions = database.getActiveAuctions();
 		if (auctions.size() > 0) {
 			newMessage.append("<ul list-style: none>");
 			
 			//For each result in the result set.
-			for (Auction auction : database.getAuctions())
+			for (Auction auction : auctions)
 			{
 				String intro = "<li><form action=\"BidServlet\" method=\"post\">";
 				String body1 = "<input type=hidden name=\"productName\" value=";
@@ -79,7 +79,7 @@ public class HomeServlet extends BaseServlet {
 				String body3 = "</h5><input type=\"number\" placeholder=\"Enter your bid\" name=\"newestBid\"/><input type=hidden name=\"location\"</li>\n";
 				String body4 = "<input type=hidden name=\"id\" value=";
 				String link = "><input type = \"submit\" value=\"Bid\"/></form>";
-				String productInfo = intro + body1 + auction.productName + body2 + auction.getCurrentPrice() + body3 + body4
+				String productInfo = intro + body1 + auction.productName + body2 + (auction.hasBid() ? auction.highBid : auction.startPrice) + body3 + body4
 						+ Long.toString(auction.id) + link;
 				
 				Product product = database.getProductWithID(auction.productID);

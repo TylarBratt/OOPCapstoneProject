@@ -42,7 +42,7 @@ public class AccountServlet extends BaseServlet {
 		StringBuffer products = new StringBuffer();
 		for (Product product : database.getProductsOwnedByUser(user.id)) {
 			String controls = "";
-			Auction auction = database.getAuctionForProduct(product.id);
+			Auction auction = database.getActiveAuctionForProduct(product.id);
 
 			//Add 'create auction' button if this product is not currently for auction.
 			if (auction == null)
