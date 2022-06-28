@@ -36,4 +36,12 @@ public class Auction {
 	public boolean hasBid() {
 		return maxBid > 0;
 	}
+
+	public Date getDate() {
+		
+		return startDate;
+	}
+	public long getDurationMins() {
+		return durationMins;
+	}
 }
