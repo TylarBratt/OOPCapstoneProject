@@ -39,6 +39,7 @@ CREATE TABLE `auction` (
   `start_date` datetime NOT NULL,
   `duration_mins` int NOT NULL,
   `start_price` int NOT NULL,
+  `is_active` int NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `is_UNIQUE` (`id`)
 );
@@ -77,41 +78,49 @@ END //
 DELIMITER ;
 
 
--- TODO FINISH. PROCESS FINISHED AUCTIONS AND TRANSFER OWNERSHIP
+-- PROCESS FINISHED AUCTIONS AND TRANSFER OWNERSHIP
 DROP PROCEDURE IF EXISTS `process_finished_auctions`;
 DELIMITER // 
 CREATE PROCEDURE `process_finished_auctions` ()
 BEGIN
-
-DECLARE v_max int;
-DECLARE v_counter int;
-
 
 CREATE TEMPORARY TABLE IF NOT EXISTS finished_auctions
 SELECT 
 	auction.id AS auction_id,
     TIMESTAMPDIFF(SECOND,NOW(),DATE_ADD(start_date,interval duration_mins minute)) AS seconds_remaining,
     bid.ammount AS top_bid,
-     bid.user_id AS top_bidder
+	bid.user_id AS top_bidder,
+	owner.id AS owner_id,
+    product.id AS product_id
 FROM auction 
+	
 	LEFT JOIN product ON auction.product_id = product.id
+    LEFT JOIN user AS owner ON product.owner_id = owner.id
     LEFT JOIN bid ON bid.auction_id = auction.id
-	LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount WHERE other.id IS NULL;
+	LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
+    WHERE other.id IS NULL
+AND auction.is_active = 1
+HAVING seconds_remaining < 0;
 
-CREATE TEMPORARY TABLE IF NOT EXISTS output (
-	test varchar(80)
+-- Subtract the bid price from the high bidder's credit count.
+UPDATE user JOIN finished_auctions ON user.id = top_bidder
+SET user.credits = credits - top_bid;
+    
+-- Add the bid price to the owner's credits
+UPDATE user JOIN finished_auctions ON user.id = owner_id AND top_bidder IS NOT NULL
+SET user.credits = credits + top_bid;
+    
+-- Set the product's owner ID to that of the high bidder.
+UPDATE product JOIN finished_auctions ON product.id = product_id AND top_bidder IS NOT NULL
+SET product.owner_id = top_bidder;
+
+-- Flag the finished auctions as complete.
+UPDATE auction 
+SET auction.is_active = 0
+WHERE auction.id IN (
+	SELECT auction_id FROM finished_auctions
 );
 
--- For each item in the finished_auctions...
-SELECT COUNT(*) INTO v_max FROM finished_auctions;
-SELECT 0 into v_counter;
-WHILE v_counter < v_max DO
-	INSERT INTO output values ("Fruity!");
-	SET v_counter=v_counter+1;
-END WHILE;
-
-SELECT * FROM OUTPUT;
-DROP TABLE output;
-
+DROP TABLE finished_auctions;
 END //
 DELIMITER ;

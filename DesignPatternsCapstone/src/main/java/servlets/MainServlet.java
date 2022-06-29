@@ -24,10 +24,10 @@ public class MainServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		//Obtain the user account from the current session.
-		User user = (User)req.getSession().getAttribute("user");
+		Long userID = ((Long)req.getSession().getAttribute("user"));
 		
 		//If a logged-in user exists for this session, redirect to the home page. Otherwise redirect to the login screen..
-		if (user != null) 
+		if (userID != null) 
 			resp.sendRedirect(req.getContextPath()+"/home");
 		else 
 			resp.sendRedirect(req.getContextPath()+"/login");

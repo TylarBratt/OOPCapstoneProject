@@ -57,7 +57,7 @@ public class SignupServlet extends BaseServlet {
 			
 			//Store the user data to the session so we can remain logged in.
 			HttpSession session = req.getSession();
-			session.setAttribute("user", user);
+			session.setAttribute("user", user.id);
 			
 			//If user already logged in, redirect to the home page.
 			resp.sendRedirect(req.getContextPath()+"/home");

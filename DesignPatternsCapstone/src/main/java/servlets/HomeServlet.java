@@ -44,8 +44,8 @@ public class HomeServlet extends BaseServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// If user is not logged in, redirect to login screen.
-		User user = (User) req.getSession().getAttribute("user");
-		if (user == null)
+		Long userID = (Long) req.getSession().getAttribute("user");
+		if (userID == null)
 			resp.sendRedirect(req.getContextPath() + "/login");
 		else
 			resp.getWriter().write(getHTMLString(req));
@@ -62,7 +62,7 @@ public class HomeServlet extends BaseServlet {
 
 	public String getHTMLString(HttpServletRequest req) {
 
-		User user = (User) req.getSession().getAttribute("user");
+		User user = database.getUser((Long)req.getSession().getAttribute("user"));
 
 		StringBuilder newMessage = new StringBuilder();
 		
@@ -70,12 +70,12 @@ public class HomeServlet extends BaseServlet {
 
 		newMessage.append("<h2>Auctions</h2>");
 		
-		List<Auction> auctions = database.getAuctions();
+		List<Auction> auctions = database.getActiveAuctions();
 		if (auctions.size() > 0) {
 			newMessage.append("<ul list-style: none>");
 			
 			//For each result in the result set.
-			for (Auction auction : database.getAuctions())
+			for (Auction auction : auctions)
 			{//here we collect information to calculate date
 				Date date = auction.getDate();
 				long min = auction.getDurationMins();
@@ -90,7 +90,6 @@ public class HomeServlet extends BaseServlet {
 				long Minutes = (toConvert / (1000 * 60))% 60;
 				long Seconds = (toConvert / 1000) % 60;
 				
-						
 				String intro = "<li><form action=\"BidServlet\" method=\"post\">";
 				String body1 = "<input type=hidden name=\"productName\" value=";
 				//product name goes here
@@ -101,7 +100,7 @@ public class HomeServlet extends BaseServlet {
 				//the lower line is used to add the auction id.
 				String body4 = "<input type=hidden name=\"id\" value=";
 				String link = "><input type = \"submit\" value=\"Bid\"/></form>";
-				String productInfo = intro + body1 + auction.productName + body2 + auction.getCurrentPrice() + body3 + body4
+				String productInfo = intro + body1 + auction.productName + body2 + (auction.hasBid() ? auction.highBid : auction.startPrice) + body3 + body4
 						+ Long.toString(auction.id) + link;
 				
 				Product product = database.getProductWithID(auction.productID);
