@@ -50,4 +50,12 @@ public class Auction {
 	public boolean hasBid() {
 		return highBid != null;
 	}
+
+	public Date getDate() {
+		
+		return startDate;
+	}
+	public long getDurationMins() {
+		return durationMins;
+	}
 }
