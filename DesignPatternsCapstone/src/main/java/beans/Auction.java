@@ -20,7 +20,7 @@ public class Auction {
 		id = data.getLong("auction.id");
 		productID = data.getLong("product.id");
 		ownerID = data.getLong("owner.id");
-		startDate = data.getDate("start_date");
+		startDate = new Date(data.getTimestamp("start_date").getTime());
 		startPrice = data.getLong("start_price");
 		durationMins = data.getLong("duration_mins");
 		
@@ -42,6 +42,7 @@ public class Auction {
 			highBidderID = null;
 		}
 		this.highBidderID = highBidderID;
+		
 		
 		productName = data.getString("product.name");
 		isActive = data.getInt("is_active") == 1;
