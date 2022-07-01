@@ -17,22 +17,12 @@ import beans.navbar.LoggedInNavbar;
 public class AccountServlet extends BaseServlet {
 	
 	public AccountServlet(){
-		super(true);
+		super("FleaBay - Account Overview", "account", true, true);
 	}
 	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
-		//If user is not logged in, redirect to login screen.
-		Long userID = (Long)req.getSession().getAttribute("user");
-		if (userID == null) 
-			resp.sendRedirect(req.getContextPath()+"/login");
-		else
-			resp.getWriter().write(getHTML(req));
-		
-	}
 	
-	public String getHTML(HttpServletRequest req) throws IOException {
+
+	public String getBodyHTML(HttpServletRequest req) {
 		
 		//Fetch the updated user info.
 		User user = database.getUser((Long)req.getSession().getAttribute("user"));
@@ -55,7 +45,7 @@ public class AccountServlet extends BaseServlet {
 		if (products.length() == 0)
 			products.append("<p>You have no items in your inventory.</p>");
 	
-		return readFileText("html/account.html", generateCSS(), products, user.userName, user.credits, new LoggedInNavbar().getHTML("account"));
+		return readFileText("html/account.html", user.userName, user.credits, products.toString());
 	}
 
 	

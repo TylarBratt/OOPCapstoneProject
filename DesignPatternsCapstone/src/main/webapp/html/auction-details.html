@@ -1,0 +1,18 @@
+<form method=post>
+	<input type=hidden name=productName value={0}/>
+	<h4>{1}</h4>
+	<h5>{9}</h5>
+	<h4>Time Remaining: </h4>
+	<h5>Days: {2}, Hours: {3}, Minutes: {4}, Seconds: {5}</h5>
+	
+	<!-- Bid error message -->
+	<p style="color:red;">{6}</p>
+	<!-- Bid success message -->
+	<p style="color:green;">{7}</p>
+	
+	<input type="number" placeholder="Enter your bid" name="newestBid"/>
+	<input type=hidden name="id" value={8}><input type = "submit" name="action" value="bid"/>
+	
+	
+	
+</form>

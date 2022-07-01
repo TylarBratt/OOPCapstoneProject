@@ -9,21 +9,20 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import beans.Common;
+import beans.LocalURLBuilder;
 import beans.User;
+import beans.navbar.LoggedInNavbar;
+import beans.navbar.LoggedOutNavbar;
+import beans.navbar.Navbar;
 
 @WebServlet("/login")
 
 public class LoginServlet extends BaseServlet {
 	
 	public LoginServlet() {
-		super(true);
+		super("FleaBay - Login", "login", true, false);
 	}
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//Write the page's HTML to the response.
-		resp.getWriter().write(getHTMLString(req, null));
-	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -47,13 +46,13 @@ public class LoginServlet extends BaseServlet {
 					session.setAttribute("user", user.id);
 					
 					//Redirect to the home page.
-					resp.sendRedirect(req.getContextPath()+"/home");
+					resp.sendRedirect(new LocalURLBuilder("home", req).toString());
 					return;
-				} else resp.getWriter().write(getHTMLString(req,"Username or password is incorrect."));
+				} else resp.sendRedirect(new LocalURLBuilder("login", req).addParam("invalid-credentials").toString());
 				
 				break;
 			default:
-				resp.getWriter().write(getHTMLString(req,"The request was invalid."));
+				resp.sendRedirect(new LocalURLBuilder("login", req).addParam("request-failed").toString());
 		}
 		
 		
@@ -63,14 +62,27 @@ public class LoginServlet extends BaseServlet {
 		
 	}
 	
-	public String getHTMLString(HttpServletRequest req, String errorMsg) throws IOException {
-		//Check the parameters for an error condition..
-		
-		
-				
 
+	@Override
+	public String getBodyHTML(HttpServletRequest req) {
+		
+		String errorMsg = "";
+		if (req.getParameter("invalid-credentials") != null)
+			errorMsg = "Username or password is incorrect. Try again.";
+		else if (req.getParameter("request-failed") != null)
+			errorMsg = "Request failed. Try again.";
+		
+		// TODO Auto-generated method stub
 		//Read the html file and insert data for the specified arguments..
-		return readFileText("html/login.html",Common.appName, Common.appSlogan, errorMsg != null ? errorMsg : "");
+		return readFileText("html/login.html",Common.appName, Common.appSlogan, errorMsg);
+			
 	}
+	
+	@Override
+	public Navbar getNavbar(HttpServletRequest req) {
+		//Always return the logged out navbar..
+		return new LoggedOutNavbar();
+	}
+	
 	
 }

@@ -8,8 +8,11 @@ import java.text.MessageFormat;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import beans.Database;
+import beans.navbar.LoggedInNavbar;
 import beans.navbar.Navbar;
 
 /**
@@ -18,9 +21,20 @@ import beans.navbar.Navbar;
  * Simplifies common tasks such as database initialization and the loading of html files.
  *
  */
-public class BaseServlet extends HttpServlet{
+public abstract class BaseServlet extends HttpServlet{
 	public final boolean isUsingDatabase;
 	Database database = null; //Only initialized if isUsingDatabase is true.
+	
+	public final boolean isLoginRequired; //If true, the user will be automatically redirected to the login screen if not logged in.
+	public final String path;
+	public final String title;
+	
+	public BaseServlet(String title, String path, boolean isUsingDatabase, boolean isLoginRequired) {
+		this.title = title;
+		this.path = path;
+		this.isUsingDatabase = isUsingDatabase;
+		this.isLoginRequired = isLoginRequired;
+	}
 	
 	@Override
 	public void destroy() {
@@ -35,15 +49,24 @@ public class BaseServlet extends HttpServlet{
 	public void init() throws ServletException {
 		//Initialize the database connection, if requested.
 		if (isUsingDatabase) 
-			database = new Database(this);
+			database = new Database();
 		
 		super.init();
 	}
 	
-	public BaseServlet(boolean isUsingDatabase) {
-		this.isUsingDatabase = isUsingDatabase;
-	}
+	@Override
+	protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// If user is not logged in, redirect to login screen.
+		boolean isLoggedIn = req.getSession().getAttribute("user") != null;
+		if (isLoginRequired && !isLoggedIn) {
+			resp.sendRedirect(req.getContextPath() + "/login");
+		}
+		else {
+			//Write the html to the response..
+			resp.getWriter().write(getHTML(req));
+		}
 
+	}
 	
 	public String readFileText(String path, Object ...arguments) {
 		try {
@@ -68,11 +91,22 @@ public class BaseServlet extends HttpServlet{
 		}
 	}
 	
-	public String getHTML(String title, Navbar navbar, String navbarSelection, String body) {
-		return readFileText("html/template.html", title, generateCSS(), navbar.getHTML(navbarSelection), body);
-	}
 	public String generateCSS() {
 		return "<style>"+readFileText("/css/style.css")+"</style>";
+	}
+	
+	
+	
+	public String getHTML(HttpServletRequest req) {
+		
+		//Generate a basic html page from template..
+		return readFileText("html/template.html", title, generateCSS(), getNavbar(req).getHTML(path), getBodyHTML(req));
+	}
+	public abstract String getBodyHTML(HttpServletRequest req);
+	
+	
+	public Navbar getNavbar(HttpServletRequest req) {
+		return new LoggedInNavbar();
 	}
 	
 }

@@ -9,9 +9,12 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,8 +28,12 @@ import beans.Auction;
 import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
+import beans.LocalURLBuilder;
 import beans.User;
 import beans.navbar.LoggedInNavbar;
+import beans.navbar.Navbar;
+import beans.exception.BidTooLowException;
+import beans.exception.InvalidInputException;
 
 @WebServlet(
 	name = "home",
@@ -35,48 +42,87 @@ import beans.navbar.LoggedInNavbar;
 
 public class HomeServlet extends BaseServlet {
 
-	public static final String htmlPath = "html/home.html";
-
 	public HomeServlet() {
-		super(true);
+		super("FleaBay - Home", "home", true, true);
 	}
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		// If user is not logged in, redirect to login screen.
-		Long userID = (Long) req.getSession().getAttribute("user");
-		if (userID == null)
-			resp.sendRedirect(req.getContextPath() + "/login");
-		else
-			resp.getWriter().write(getHTMLString(req));
-
-	}
+	
 
 	@Override
-
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		//Get user ID from the current session.
+		Long userID = (Long) req.getSession().getAttribute("user");
 
-		PrintWriter writer = resp.getWriter();
-		writer.write(getHTMLString(req));
-	}
+		//Redirect to login screen if user is not logged in.
+        if (userID == null)
+            resp.sendRedirect(req.getContextPath() + "/login");
+        else {
+        	String postAction = req.getParameter("action");
+        	System.out.println("Post action: "+postAction);
+        	if (postAction == null)
+        		throw new RuntimeException("Post request recieved with no action parameter specified.");
+        	else if (postAction.equals("bid")) {
+        		//Start issuing a new bid...
+        		
+        		//Get the auction that is being bid on.
+        		Auction auction = database.getAuctionWithID(Integer.valueOf(req.getParameter("id")));
+        		
+        		//Calculate the ID for the for the new bid by adding 1 to the highest bid id in the database.
+        		//TODO: Combine this all into a single SQL stored procedure, since a race condition for the ID can occur if two people try creating a bid at the same time.
+        		int bidID = database.getnewID()+1;
+               
+        		//Get the value of the bid.
+        		Integer bidAmount;
+        		try {
+        			bidAmount = Integer.valueOf(req.getParameter("newestBid"));
+        		} catch (NumberFormatException e) {
+        			//Error! Bid value was not set.
+        			bidAmount = null;
+        		}
+        		
+        		//Start building the parameter list that we'll use to display a message to the user.
+        		LocalURLBuilder responseUrl = new LocalURLBuilder("home",req);
+        		
+        		//Make the bid and add the result to the parameters.
+    			try {
+					database.makeBid(auction, userID, bidAmount);
+					responseUrl.addParam("bid-success");
+				} catch (BidTooLowException e) {
+					responseUrl.addParam("bid-failed-too-low");
+				} catch (InvalidInputException e) {
+					responseUrl.addParam("bid-failed-no-value-specified");
+				}
+    			
 
-	public String getHTMLString(HttpServletRequest req) {
+    			responseUrl.addParam("auction-id", Long.toString(auction.id));
+    			
+    			//Reload the home page with response parameters.
+				resp.sendRedirect(responseUrl.toString());
+           } 
+       	
+    	}
+    }
+            
 
-		User user = database.getUser((Long)req.getSession().getAttribute("user"));
 
-		StringBuilder newMessage = new StringBuilder();
+	@Override
+	public String getBodyHTML(HttpServletRequest req) {
+		//Obtain the auction index to display a special message on.
+		Long targetAuctionID;
+		try {
+			targetAuctionID = Long.parseLong(req.getParameter("auction-id"));
+		} catch (NumberFormatException e) {
+			targetAuctionID = null;
+		}
+
+		StringBuilder body = new StringBuilder();
+		body.append("<h2>Auctions</h2>");
 		
-		
-
-		newMessage.append("<h2>Auctions</h2>");
-		
-		List<Auction> auctions = database.getActiveAuctions();
-		if (auctions.size() > 0) {
-			newMessage.append("<ul list-style: none>");
-			
-			//For each result in the result set.
-			for (Auction auction : auctions)
-			{//here we collect information to calculate date
+		List<Auction> activeAuctions = database.getActiveAuctions();
+		if (activeAuctions.size() > 0) {
+			for (Auction auction : activeAuctions)
+			{
+				//here we collect information to calculate date
 				Date date = auction.getDate();
 				long min = auction.getDurationMins();
 				Date finalDate = DateUtils.addMinutes(date, (int) min);
@@ -84,42 +130,52 @@ public class HomeServlet extends BaseServlet {
 				Date currentDate = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
 				//here we actually calculate the date but it is in milliseconds or something
 				long toConvert = finalDate.getTime() - currentDate.getTime();
+				//Set the time to zero if negative.
+				toConvert = Math.max(toConvert, 0L);
 				//here we convert the milliseconds into viewable time increments.
 				long Days= (toConvert / (1000 * 60 * 60 * 24)) % 365;
 				long Hours = (toConvert / (1000 * 60 * 60)) % 24;
 				long Minutes = (toConvert / (1000 * 60))% 60;
 				long Seconds = (toConvert / 1000) % 60;
 				
-				String intro = "<li><form action=\"BidServlet\" method=\"post\">";
-				String body1 = "<input type=hidden name=\"productName\" value=";
-				//product name goes here
-				String body2 = "/><h4>"+ (auction.hasBid()? "Highest Bid:":"Starting Price:")+"</h4><h5>";
-				// highest bid from auction goes here
-				//the lower line adds the time
-				String body3 = "</h5><h4>Time Remaining: </h4><h5>" + "Days: " + Long.toString(Days) + ", Hours: " + Long.toString(Hours) + ", Minutes: "+ Long.toString(Minutes) + ", Seconds: " + Long.toString(Seconds) + "</h5><input type=\"number\" placeholder=\"Enter your bid\" name=\"newestBid\"/><input type=hidden name=\"location\"</li>\n";
-				//the lower line is used to add the auction id.
-				String body4 = "<input type=hidden name=\"id\" value=";
-				String link = "><input type = \"submit\" value=\"Bid\"/></form>";
-				String productInfo = intro + body1 + auction.productName + body2 + (auction.hasBid() ? auction.highBid : auction.startPrice) + body3 + body4
-						+ Long.toString(auction.id) + link;
+				String bidSuccessText = "";
+				String bidErrorText = "";
+				boolean isTargetAuction = (targetAuctionID != null && auction.id == targetAuctionID);
+				if (isTargetAuction) {
+					//Generate the appropriate success/error message for this auction..
+					if (req.getParameter("bid-success") != null)
+						bidSuccessText = "Bid success!";
+					if (req.getParameter("bid-failed-no-value-specified") != null) 
+						bidErrorText = "You must enter a bid value!";
+					else if (req.getParameter("bid-failed-too-low") != null)
+						bidErrorText = "Bid too low. Try again.";
+				}
 				
+				//Load the auction details HTML from file and populate it with the necessary values.
+				String auctionInfo = readFileText("html/auction-details.html", 
+						auction.productName, 
+						auction.hasBid() ? "High Bid:" : "Starting Price:", 
+						Days, 
+						Hours, 
+						Minutes, 
+						Seconds, 
+						bidErrorText, 
+						bidSuccessText, 
+						auction.id,
+						auction.hasBid() ? auction.getHighBidText() : auction.startPrice);
+				
+		
 				Product product = database.getProductWithID(auction.productID);
 				if (product != null) 
-					newMessage.append(readFileText("html/product.html", product.imagePath, product.name, productInfo));
+					body.append(readFileText("html/product.html", product.imagePath, product.name, auctionInfo));
 				
 			}
 			
-			newMessage.append("</ul>");
 		}
 		else
-			newMessage.append("<h3>None</h3>");
+			body.append("<h3>None</h3>");
 		
-		
-		
-		//Print the message for debugging purposes.
-		//System.out.println(finalMessage);
-
-		return readFileText(htmlPath, newMessage.toString(), new LoggedInNavbar().getHTML("home"), generateCSS(), user.userName);
+		return body.toString();
 	}
 
 }

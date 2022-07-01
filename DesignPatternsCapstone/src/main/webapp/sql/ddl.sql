@@ -30,7 +30,8 @@ CREATE TABLE `bid` (
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  auction_id int NOT NULL
+  auction_id int NOT NULL,
+  UNIQUE KEY `auction_bid_UNIQUE` (auction_id,ammount)
 );
 
 CREATE TABLE `auction` (

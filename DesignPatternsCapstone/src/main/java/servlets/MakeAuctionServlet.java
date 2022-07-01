@@ -24,22 +24,10 @@ import beans.navbar.LoggedInNavbar;
 public class MakeAuctionServlet extends BaseServlet {
 	
 	public MakeAuctionServlet(){
-		super(true);
+		super("Flea Bay - Create Auction", "make-auction", true, true);
 	}
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//If user is not logged in, redirect to login screen.
-		Long userID = (Long)req.getSession().getAttribute("user");
-		if (userID == null) {
-			resp.sendRedirect(req.getContextPath()+"/login");
-			return;
-		}
-			
-		resp.getWriter().write(getHTMLString(req));
-	}
-
-	@Override
 	
+	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		//If user is not logged in, redirect to login screen.
 		User user = database.getUser((Long)req.getSession().getAttribute("user"));
@@ -56,17 +44,17 @@ public class MakeAuctionServlet extends BaseServlet {
 		//Create an auction in the database and return a user.
 		boolean success = database.createAuction(user.id, productID, startingBid, durationMins);
 		if (success)
-			resp.sendRedirect(req.getContextPath()+"/account");
+			resp.sendRedirect(req.getContextPath()+"/home");
 		else
-			resp.getWriter().write(getHTMLString(req));
+			resp.getWriter().write(getHTML(req));
 		
 	}
 	
-	public String getHTMLString(HttpServletRequest req) throws IOException {
-
+	@Override
+	public String getBodyHTML(HttpServletRequest req) {
 		StringBuilder body = new StringBuilder();
 		
-		body.append("<h1>Create An Auction</h1>");
+		body.append("");
 		//Add the product image.
 		long productID = Long.parseLong(req.getParameter("id"));
 		Product product = database.getProductWithID(productID);
@@ -75,10 +63,7 @@ public class MakeAuctionServlet extends BaseServlet {
 		
 
 		//Add the make auction form..
-		body.append(readFileText("html/make-auction.html", productID));
-		
-		
-		return getHTML("FleaBay - Create Auction", new LoggedInNavbar(), "account",body.toString() );
+		return readFileText("html/make-auction.html", productID, body.toString());
 	}
 	
 }

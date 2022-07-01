@@ -59,4 +59,10 @@ public class Auction {
 	public long getDurationMins() {
 		return durationMins;
 	}
+	public String getHighBidText() {
+		if (hasBid())
+			return Long.toString(highBid);
+		else
+			return "None";
+	}
 }

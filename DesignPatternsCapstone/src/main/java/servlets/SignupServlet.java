@@ -17,14 +17,17 @@ import javax.servlet.http.HttpSession;
 
 import beans.Common;
 import beans.Database;
+import beans.LocalURLBuilder;
 import beans.User;
+import beans.navbar.LoggedOutNavbar;
+import beans.navbar.Navbar;
 
 @WebServlet("/signup")
 
 public class SignupServlet extends BaseServlet {
 
 	public SignupServlet() {
-		super(true);
+		super("FleaBay - Create Account", "signup", true, false);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -38,11 +41,6 @@ public class SignupServlet extends BaseServlet {
 		public String message;
 	}
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		PrintWriter writer = resp.getWriter();
-		writer.write(getHTMLString(req));
-	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -60,23 +58,26 @@ public class SignupServlet extends BaseServlet {
 			session.setAttribute("user", user.id);
 			
 			//If user already logged in, redirect to the home page.
-			resp.sendRedirect(req.getContextPath()+"/home");
+			resp.sendRedirect(new LocalURLBuilder("home",req).toString());
 		}
 		else {
 			//Reload the page with "err" parameter set to 1
-			resp.sendRedirect(req.getContextPath()+"/signup?err=1");
+			resp.sendRedirect(new LocalURLBuilder("signup",req).addParam("err").toString());
 		}
 	}
 	
-	public String getHTMLString(HttpServletRequest req) throws IOException {
-		
+	@Override
+	public Navbar getNavbar(HttpServletRequest req){
+		return new LoggedOutNavbar();
+	}
+
+	@Override
+	public String getBodyHTML(HttpServletRequest req) {
 		//Check the parameters for an error condition..
-		String errorCode = req.getParameter("err");
-		String errorMsg;
-		if (errorCode != null)
+		String errorMsg = "";
+		
+		if (req.getParameter("err") != null)
 			errorMsg = "User is taken. Try again.";
-		else
-			errorMsg = "";
 		
 	
 		return readFileText("html/signup.html", Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMsg);
