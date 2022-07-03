@@ -47,6 +47,9 @@ CREATE TABLE `auction` (
 
 insert into `user` (username, password, credits, role) values ("root", "root", "10001", "ADMIN");
 
+DROP USER IF EXISTS '22S_CST8288_450_GROUP_2';
+CREATE USER '22S_CST8288_450_GROUP_2'@'%' IDENTIFIED BY 'CST8288';
+GRANT ALL PRIVILEGES ON oop_capstone.* TO '22S_CST8288_450_GROUP_2'@'%';
 
 DROP PROCEDURE IF EXISTS insert_product;
 DELIMITER // 
