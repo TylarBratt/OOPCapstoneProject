@@ -55,7 +55,7 @@ public class Navbar {
 		//Add right floating items in reverse (so they appear on screen in the order they were listed)
 		for (int i = items.length-1; i >= 0; i--) 
 			if (items[i].gravity.equals(Gravity.RIGHT))
-			html.append(items[i].getHTML(currentPath));
+				html.append(items[i].getHTML(currentPath));
 			
 		
 		//Close the unordered list.

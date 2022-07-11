@@ -99,8 +99,8 @@ public abstract class BaseServlet extends HttpServlet{
 	
 	public String getHTML(HttpServletRequest req) {
 		
-		//Generate a basic html page from template..
-		return readFileText("html/template.html", title, generateCSS(), getNavbar(req).getHTML(path), getBodyHTML(req));
+		//Generate a basic html page from base template..
+		return readFileText("html/base.html", title, generateCSS(), getNavbar(req).getHTML(path), getBodyHTML(req));
 	}
 	public abstract String getBodyHTML(HttpServletRequest req);
 	

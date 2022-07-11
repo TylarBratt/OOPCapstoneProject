@@ -13,6 +13,13 @@ public class LocalURLBuilder {
 	private final String path;
 	private List<Pair<String,String>> params = new ArrayList<>();
 	private final HttpServletRequest request;
+	
+	
+	/**
+	 * 
+	 * @param path The servlet name being pointed to (ie. "home")
+	 * @param req A copy of the servlet request.
+	 */
 	public LocalURLBuilder(String path, HttpServletRequest req) {
 		this.path = path;
 		this.request = req;
