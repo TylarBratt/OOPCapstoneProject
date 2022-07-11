@@ -19,7 +19,7 @@ public class ServiceManager implements ServletContextListener {
 	Database dbConnection = null;
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-	int interval = 3000; //milliseconds
+	
 	
 	Timer timer = new Timer();
 	
@@ -30,7 +30,7 @@ public class ServiceManager implements ServletContextListener {
 		//Use the scheduler to start background tasks here....
 		
 		System.out.println("Starting finished auction processor service..");
-		scheduler.scheduleAtFixedRate(new ProcessFinishedAuctionsTask(dbConnection), 0, interval, TimeUnit.MILLISECONDS);
+		scheduler.scheduleAtFixedRate(new ProcessFinishedAuctionsTask(dbConnection), 0, ProcessFinishedAuctionsTask.interval, TimeUnit.MILLISECONDS);
 		
 	}
 	

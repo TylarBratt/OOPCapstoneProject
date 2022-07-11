@@ -8,6 +8,8 @@ import java.util.TimerTask;
 public class ProcessFinishedAuctionsTask implements Runnable {
 	final Database connection;
 	
+	public static final int interval = 3000;
+	
 	ProcessFinishedAuctionsTask(Database connection){
 		this.connection = connection;
 	}
