@@ -24,6 +24,13 @@ public class LocalURLBuilder {
 		this.path = path;
 		this.request = req;
 	}
+	
+	/**
+	 * Add a parameter to the URL
+	 * @param key The string identifying the parameter
+	 * @param value The value of the parameter.
+	 * @return A reference to self. Allows the method to be chained. (ie. addParam(x).addParam(y).toString())
+	 */
 	public LocalURLBuilder addParam(String key, String value) {
 		if (key == null)
 			throw new RuntimeException("URL Param Key cannot be null");
@@ -36,6 +43,10 @@ public class LocalURLBuilder {
 	}
 	
 	
+	
+	/**
+	 * Generates the url and returns it in a string.
+	 */
 	@Override
 	public String toString() {
 		StringBuilder paramText = new StringBuilder();
