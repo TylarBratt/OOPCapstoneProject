@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.time.DateUtils;
 
 import beans.Auction;
+import beans.BidResult;
 import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
@@ -33,6 +34,7 @@ import beans.User;
 import beans.navbar.LoggedInNavbar;
 import beans.navbar.Navbar;
 import beans.exception.BidTooLowException;
+import beans.exception.InvalidBidderException;
 import beans.exception.InvalidInputException;
 
 @WebServlet(
@@ -86,11 +88,13 @@ public class HomeServlet extends BaseServlet {
         		//Make the bid and add the result to the parameters.
     			try {
 					database.makeBid(auction, userID, bidAmount);
-					responseUrl.addParam("bid-success");
+					responseUrl.addParam(BidResult.BID_SUCCESS.paramName);
 				} catch (BidTooLowException e) {
-					responseUrl.addParam("bid-failed-too-low");
+					responseUrl.addParam(BidResult.BID_FAILED_TOO_LOW.paramName);
 				} catch (InvalidInputException e) {
-					responseUrl.addParam("bid-failed-no-value-specified");
+					responseUrl.addParam(BidResult.BID_FAILED_NO_VALUE.paramName);
+				} catch (InvalidBidderException e) {
+					responseUrl.addParam(BidResult.BID_FAILED_INVALID_BIDDER.paramName);
 				}
     			
 
@@ -143,12 +147,14 @@ public class HomeServlet extends BaseServlet {
 				boolean isTargetAuction = (targetAuctionID != null && auction.id == targetAuctionID);
 				if (isTargetAuction) {
 					//Generate the appropriate success/error message for this auction..
-					if (req.getParameter("bid-success") != null)
-						bidSuccessText = "Bid success!";
-					if (req.getParameter("bid-failed-no-value-specified") != null) 
-						bidErrorText = "You must enter a bid value!";
-					else if (req.getParameter("bid-failed-too-low") != null)
-						bidErrorText = "Bid too low. Try again.";
+					if (req.getParameter(BidResult.BID_SUCCESS.paramName) != null)
+						bidSuccessText = BidResult.BID_SUCCESS.displayMessage;
+					else if (req.getParameter(BidResult.BID_FAILED_NO_VALUE.paramName) != null) 
+						bidErrorText = BidResult.BID_FAILED_NO_VALUE.displayMessage;
+					else if (req.getParameter(BidResult.BID_FAILED_INVALID_BIDDER.paramName) != null)
+						bidErrorText = BidResult.BID_FAILED_INVALID_BIDDER.displayMessage;
+					else if (req.getParameter(BidResult.BID_FAILED_TOO_LOW.paramName) != null)
+						bidErrorText = BidResult.BID_FAILED_TOO_LOW.displayMessage;
 				}
 				
 				//Load the auction details HTML from file and populate it with the necessary values.

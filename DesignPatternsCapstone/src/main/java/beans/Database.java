@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import beans.exception.BidTooLowException;
+import beans.exception.InvalidBidderException;
 import beans.exception.InvalidInputException;
 
 public class Database {
@@ -263,7 +264,7 @@ public class Database {
 		return id;
 	}
 
-	public void makeBid(Auction auction, Long userID, Integer amount) throws BidTooLowException, InvalidInputException {
+	public void makeBid(Auction auction, Long userID, Integer amount) throws BidTooLowException, InvalidInputException, InvalidBidderException {
 		if (userID == null)
 			throw new RuntimeException("Error making bid. UserID is null.");
 		
@@ -276,6 +277,9 @@ public class Database {
 		if (!isReserveMet || !isHighestBid) 
 			throw new BidTooLowException();
 		
+		//Don't allow users to bid on auctions they created.
+		if (auction.ownerID == userID)
+			throw new InvalidBidderException();
 		
 		//Calculate the ID for the for the new bid by adding 1 to the highest bid id in the database.
 		//TODO: Combine this all into a single SQL stored procedure, since a race condition for the ID can occur if two people try creating a bid at the same time.
