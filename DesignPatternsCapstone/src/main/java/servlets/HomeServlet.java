@@ -34,6 +34,7 @@ import beans.User;
 import beans.navbar.LoggedInNavbar;
 import beans.navbar.Navbar;
 import beans.exception.BidTooLowException;
+import beans.exception.InsufficientFundsException;
 import beans.exception.InvalidBidderException;
 import beans.exception.InvalidInputException;
 
@@ -95,6 +96,8 @@ public class HomeServlet extends BaseServlet {
 					responseUrl.addParam(BidResult.BID_FAILED_NO_VALUE.paramName);
 				} catch (InvalidBidderException e) {
 					responseUrl.addParam(BidResult.BID_FAILED_INVALID_BIDDER.paramName);
+				} catch (InsufficientFundsException e) {
+					responseUrl.addParam(BidResult.BID_FAILED_INSUFFICIENT_FUNDS.paramName);
 				}
     			
 
@@ -155,6 +158,8 @@ public class HomeServlet extends BaseServlet {
 						bidErrorText = BidResult.BID_FAILED_INVALID_BIDDER.displayMessage;
 					else if (req.getParameter(BidResult.BID_FAILED_TOO_LOW.paramName) != null)
 						bidErrorText = BidResult.BID_FAILED_TOO_LOW.displayMessage;
+					else if (req.getParameter(BidResult.BID_FAILED_INSUFFICIENT_FUNDS.paramName) != null)
+						bidErrorText = BidResult.BID_FAILED_INSUFFICIENT_FUNDS.displayMessage;
 				}
 				
 				//Load the auction details HTML from file and populate it with the necessary values.

@@ -27,7 +27,7 @@ public class Auction {
 		//Try to obtain the high bid amount, since there may not yet be any bids. 
 		Long highBid;
 		try {
-			highBid = Long.parseLong(data.getString("bid.ammount"));
+			highBid = Long.parseLong(data.getString("top_bid"));
 		} catch (NumberFormatException e) {
 			highBid = null;
 		}
@@ -37,7 +37,7 @@ public class Auction {
 		//Try to obtain the user ID of the high bidder, since there may not yet be any bids..
 		Long highBidderID;
 		try {
-			highBidderID = Long.parseLong(data.getString("bid.user_id"));
+			highBidderID = Long.parseLong(data.getString("top_bidder"));
 		} catch (NumberFormatException e) {
 			highBidderID = null;
 		}
