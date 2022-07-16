@@ -45,7 +45,14 @@ public class AccountServlet extends BaseServlet {
 		if (products.length() == 0)
 			products.append("<p>You have no items in your inventory.</p>");
 	
-		return readFileText("html/account.html", user.userName, user.credits, products.toString());
+		//TODO: Get a list of all auctions which the user has bid on.
+		String count = Integer.toString(database.getParticipatingAuctions(user.id).size());
+		
+		return readFileText("html/account.html", 
+				user.userName, 
+				user.credits, 
+				products.toString(),
+				count);
 	}
 
 	
