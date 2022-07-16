@@ -173,7 +173,7 @@ public class HomeServlet extends BaseServlet {
 		
 				Product product = database.getProductWithID(auction.productID);
 				if (product != null) 
-					body.append(readFileText("html/product.html", product.imagePath, product.name, auctionInfo));
+					body.append(readFileText("html/product.html", product.imagePath, product.name, auctionInfo, auction.productID));
 				
 			}
 			

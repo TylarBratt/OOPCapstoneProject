@@ -353,7 +353,22 @@ public class Database {
 		}
 		return null;
 	}
-	
+	public ResultSet getBidswithPID(long id) {
+		ResultSet results;
+		try {
+			//"SELECT bid.id, bid.ammount, bid.user_id, 'name', 'date', auction_id, auction.id, auction.product_id, product.id, product.name FROM bid LEFT JOIN auction on auction_id = auction.id LEFT JOIN user ON bid.user_id = user.id LEFT JOIN product ON auction.product_id = product.id WHERE product.id = ?"
+//this might be the better query
+		String query = "SELECT * FROM bid LEFT JOIN auction on auction_id = auction.id LEFT JOIN user ON bid.user_id = user.id LEFT JOIN product ON auction.product_id = product.id WHERE product.id = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setLong(1, id);
+		results = statement.executeQuery();
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException("Error getting bids with product id");
+		}
+		return results;
+	}
 	void processFinishedAuctions() {
 		System.out.print("Processing finished auctions..");
 		try {
@@ -367,5 +382,5 @@ public class Database {
 			throw new RuntimeException("Process finished auctions failed!");
 		}
 	}
-
+	
 }
