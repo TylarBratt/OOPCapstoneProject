@@ -224,4 +224,31 @@ BEGIN
 END //
 DELIMITER ;
 
+-- Get participating auctions.
+DROP PROCEDURE IF EXISTS get_participating_auctions;
+DELIMITER // 
+
+CREATE PROCEDURE `get_participating_auctions`(
+	IN user_id INT
+)
+BEGIN
+	
+	SELECT 
+		auction.*,
+		TIMESTAMPDIFF(SECOND,NOW(),DATE_ADD(start_date,interval duration_mins minute)) AS seconds_remaining,
+		bid.ammount AS top_bid,
+		bid.user_id AS top_bidder,
+		owner.id,
+		product.*
+	FROM (SELECT DISTINCT auction.* FROM bid 
+		  JOIN auction ON auction.id = bid.auction_id AND bid.user_id = user_id) AS auction
+		LEFT JOIN product ON auction.product_id = product.id
+		LEFT JOIN user AS owner ON product.owner_id = owner.id
+		LEFT JOIN bid ON bid.auction_id = auction.id
+		LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
+		WHERE other.id IS NULL
+        ORDER BY bid.date DESC;
+END //
+DELIMITER ;
+
 

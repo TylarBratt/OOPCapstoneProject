@@ -45,14 +45,55 @@ public class AccountServlet extends BaseServlet {
 		if (products.length() == 0)
 			products.append("<p>You have no items in your inventory.</p>");
 	
-		//TODO: Get a list of all auctions which the user has bid on.
-		String count = Integer.toString(database.getParticipatingAuctions(user.id).size());
+		StringBuilder auctions = new StringBuilder();
+		for (Auction auction : database.getParticipatingAuctions(user.id)) {
+			
+			StringBuilder message = new StringBuilder();
+			
+			
+			
+			//Get a status message describing whether this auction is winning/losing.
+			message.append("<p>");
+			if (auction.isActive) {
+				if (auction.highBidderID == user.id)
+					message.append("You're winning!");
+				else
+					message.append("You were outbid!");
+			} else {
+				if (auction.highBidderID == user.id)
+					message.append("You won!");
+				else
+					message.append("You didn't win.");
+			}
+			message.append("</p>");
+			
+			//Show the current high bid (if there is one)..
+			if (auction.hasBid()) {
+				message.append("<p>");
+				message.append("High Bid: ");
+				message.append(auction.getHighBidText());
+				message.append("</p>");
+			}
+			
+			StringBuilder endDateMsg = new StringBuilder();
+			//SHow the end date.
+			if (auction.isActive)
+				endDateMsg.append("Ends: ");
+			else
+				endDateMsg.append("Ended: ");
+			endDateMsg.append(auction.getEndDate());
+			
+			Product product = database.getProductWithID(auction.productID);
+			if (product != null) 
+				auctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
+		}
+		
 		
 		return readFileText("html/account.html", 
 				user.userName, 
 				user.credits, 
 				products.toString(),
-				count);
+				auctions);
 	}
 
 	
