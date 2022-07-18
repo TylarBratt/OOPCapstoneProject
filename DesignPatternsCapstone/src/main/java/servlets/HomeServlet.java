@@ -184,7 +184,7 @@ public class HomeServlet extends BaseServlet {
 			
 		}
 		else
-			body.append("<h3>None</h3>");
+			body.append("<h4>No active auctions. <a href=\"account\">Create one</a> to get the bidding started!</h4>");
 		
 		return body.toString();
 	}
