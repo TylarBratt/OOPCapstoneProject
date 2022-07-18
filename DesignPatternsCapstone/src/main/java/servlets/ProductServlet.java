@@ -62,6 +62,12 @@ public class ProductServlet extends BaseServlet {
 		 * just do it,
 		 * pass it through the same as id and add it to the sql statement.
 		 */
+		
+		
+		int ownerId = 0;
+		boolean full = false;
+		
+	
 		String step = req.getParameter("id");
 		long id = Long.parseLong(step);
 		System.out.println(id);
@@ -71,33 +77,35 @@ public class ProductServlet extends BaseServlet {
 		StringBuilder intro = new StringBuilder();
 			intro.append("<h2>Product</h2>");
 			System.out.println(pr.imagePath);
-			
-			//body.append("<img src=${pageContext.request.contextPath}/images/" + pr.imagePath + "alt=\"Product Image\" width=\"500\" height=\"500\">");
 		StringBuilder body = new StringBuilder();
 			body.append("<h2>" + pr.name + "</h2>");
+			//ok so this program has to be split into two seperate steps due to the sql statements required. If the first statement returns with no bids then the second statement runs.
 			
+			
+			//this is the start of the first section
 		ResultSet rs = database.getBidswithPID(id);
-		//i need some form of html list here in a string that I can add variables to and pass one giant list to product.html
-		StringBuilder table = new StringBuilder();
-				table.append("<table>" 
-				+"	<tr>"
-				+"  <th>Bid Id</th>"
-				+"  <th>Ammount</th>"
-				+"  <th>Bid Date</th>"
-				+"  <th>User Name</th>"
-				+"  </tr>");
-		LocalDateTime startDate = null;
-		int duration = 0;
-		int startPrice = 0;
-		int ownerId = 0;
+		
+		boolean first = true;
 		try {
+			StringBuilder table = new StringBuilder();
 			while (rs.next()) {
+				if (first == true) {
+					
+					table.append("<table>" 
+					+"	<tr>"
+					+"  <th>Bid Id</th>"
+					+"  <th>Ammount</th>"
+					+"  <th>Bid Date</th>"
+					+"  <th>User Name</th>"
+					+"  </tr>");
+					first = false;
+				}
+				full = true;
 				int bidID = rs.getInt("id");
 				int ammount = rs.getInt("ammount");
 				Date bidDate = rs.getDate("date");
-				startDate = (LocalDateTime) rs.getObject("start_date");
-				duration = rs.getInt("duration_mins");
-				startPrice = rs.getInt("start_price");
+				int duration = rs.getInt("duration_mins");
+				int startPrice = rs.getInt("start_price");
 				String userName = rs.getString("username");
 				ownerId = rs.getInt("owner_id");
 				String maskedUser = replaceAll(userName);
@@ -107,36 +115,83 @@ public class ProductServlet extends BaseServlet {
 						+"	<td>" + bidDate +"</td>"
 						+"	<td>" + maskedUser +"</td></tr>");
 				
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new RuntimeException("Error creating bid table");
-		}
 		//here we need to get the end date again.
-		LocalDateTime finalDate = startDate.plusMinutes(duration);
-		LocalDateTime currentDate = LocalDateTime.now();
+		Auction auction	= database.getActiveAuctionForProduct(pr.id);
+		Date startDate = auction.startDate;
+		
+		Date finalDate = DateUtils.addMinutes(startDate, duration);
+		Date currentDate = new Date();
 	
-		Duration dur = Duration.between(finalDate, currentDate);
-		System.out.println(dur);
-		long days = dur.toDays();
-		long hours = (dur.toHours()) % 24;
-		long minutes = (dur.toMinutes()) % 60;
-		long seconds = (dur.toSeconds()) % 60;
+		long toConvert = finalDate.getTime() - currentDate.getTime();
+		toConvert = Math.max(toConvert, 0L);
+		long days= (toConvert / (1000 * 60 * 60 * 24)) % 365;
+		long hours = (toConvert / (1000 * 60 * 60)) % 24;
+		long minutes = (toConvert / (1000 * 60))% 60;
+		long seconds = (toConvert / 1000) % 60;
+		
+	
 		System.out.println(startDate);
 		System.out.println(currentDate);
 		System.out.println(finalDate);
 		User auctioneer = database.getUser(ownerId);
 		String userId = replaceAll(auctioneer.userName);
-		
+			
+				
 		table.append("</table><h4> Starting Price: " + startPrice + "</h4>"
 				+ "<h4> Start Date: " + startDate +"</h4>"
 				+ "<h4> End Date: " + finalDate + "</h4>"
 				+ "<h4> Days: " + days + " Hours: " + hours + " Minutes: " + minutes + " Seconds: " + seconds + "</h4>"
 				+ "<h5> Auctioneer: " + userId + "</h5>");
 		body.append(table.toString());
+		rs.close();
 		return readFileText("html/product-details.html", intro, pr.imagePath, body);
-	}
+			}
+			if (full == false) {
+				body.append("<h4>No Bids</h4>");
+				Auction auction = database.getActiveAuctionForProduct(pr.id);
+				
+				Date startDate = auction.startDate;
+				Long temp2 = auction.durationMins;
+				int duration = temp2.intValue();
+				Date finalDate = DateUtils.addMinutes(startDate, duration);
+				LocalDateTime now = LocalDateTime.now();
+				Date currentDate = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
+				
+				long toConvert = finalDate.getTime() - currentDate.getTime();
+				toConvert = Math.max(toConvert, 0L);
+				long days= (toConvert / (1000 * 60 * 60 * 24)) % 365;
+				long hours = (toConvert / (1000 * 60 * 60)) % 24;
+				long minutes = (toConvert / (1000 * 60))% 60;
+				long seconds = (toConvert / 1000) % 60;
+				
+				Long startPrice = auction.startPrice;
+				User user = database.getUser(auction.ownerID);
+				String userId = replaceAll(user.userName);
+				table.append("</table><h4> Starting Price: " + startPrice + "</h4>"
+				+ "<h4> Start Date: " + startDate +"</h4>"
+				+ "<h4> End Date: " + finalDate + "</h4>"
+				+ "<h4> Days: " + days + " Hours: " + hours + " Minutes: " + minutes + " Seconds: " + seconds + "</h4>"
+				+ "<h5> Auctioneer: " + userId + "</h5>");
+				body.append(table.toString());	
+				
+				
+				
+				
+				
+				return readFileText("html/product-details.html", intro, pr.imagePath, body);
+			}
+			}catch (SQLException e) {
+				e.printStackTrace();
+			}	
+		//this is the end of the first section and the start of the second.
+		
+		
+		
+		
+	
+	return readFileText("html/product-details.html", intro, pr.imagePath, body);
+	
+		}
 	
 public String replaceAll(String string) {
 	StringBuilder place = new StringBuilder();
@@ -151,7 +206,13 @@ public String replaceAll(String string) {
 	return string;
 }
 
-
+public int[] getDuration(Date startDate, Date finalDate) {
+	int[] duration = new int[4];
+	
+	
+	
+	return duration;
+}
 
 
 
