@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import beans.exception.BidTooLowException;
+import beans.exception.InsufficientFundsException;
 import beans.exception.InvalidBidderException;
 import beans.exception.InvalidInputException;
 
@@ -24,11 +25,11 @@ public class Database {
 	public Connection connection = null;
 
 	public Database() {
-		
+
 		// Get connection to database.
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			//System.out.println("MySQL JDBC Driver Registered!");
+			// System.out.println("MySQL JDBC Driver Registered!");
 
 			// Create database connection. Append allowMultiQueries flag if you need to
 			// process multiple queries at a time.
@@ -187,75 +188,70 @@ public class Database {
 			if (results.next()) {
 				System.out.println("Auction created successfully!");
 				return true;
-			}
-			else return false;
+			} else
+				return false;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Create auction failed.");
 		}
-		
-		
 
 	}
 
 	public Auction getActiveAuctionForProduct(long productID) {
-		for (Auction auction : getAuctions(false)) 
+		for (Auction auction : getActiveAuctions())
 			if (auction.productID == productID)
 				return auction;
-		
-		
+
 		// No matching auction found.
 		return null;
 	}
 
 	/*
-	 * Returns a list of auctions from the database. If includeInactive is FALSE then
-	 * only active auctions will be returned.
+	 * Returns all auctions.
 	 */
-	public List<Auction> getAuctions(boolean includeInactive) {
+	public List<Auction> getAuctions() {
+
 		List<Auction> auctions = new ArrayList<Auction>();
-		
+
 		try {
-			StringBuilder sql = new StringBuilder();
-				sql.append("SELECT * FROM auction"
-						+ "	LEFT JOIN product ON auction.product_id = product.id"
-						+ " LEFT JOIN user AS owner ON product.owner_id = owner.id"
-						+ " LEFT JOIN bid ON bid.auction_id = auction.id"
-						+ "	LEFT JOIN bid AS higher_bid ON higher_bid.auction_id = bid.auction_id AND bid.ammount < higher_bid.ammount"
-						+ " WHERE higher_bid.id IS NULL");
-			if (!includeInactive)
-				sql.append(" AND auction.is_active = 1");
-			
-			PreparedStatement st = connection.prepareStatement(sql.toString());
-			ResultSet results = st.executeQuery(sql.toString());
-			
-			//For each row in the result, create a new auction object and add it to the list of auctions..
+			PreparedStatement statement = connection.prepareStatement("CALL get_auctions;"); // TODO: Make
+
+			ResultSet results = statement.executeQuery();
+
+			// For each row in the result, create a new auction object and add it to the
+			// list of auctions..
 			while (results.next())
 				auctions.add(new Auction(results));
-			
-			return auctions;
-		}
-		catch (SQLException e) {
+
+		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Error getting auctions.");
 		}
-		
+
+		return auctions;
+
 	}
-	/*
-	 * Returns all auctions.
-	 */
-	public List<Auction> getAuctions(){
-		return getAuctions(true);
-	}
+
 	/*
 	 * Returns all active auctions.
 	 */
-	public List<Auction> getActiveAuctions(){
-		return getAuctions(false);
+	public List<Auction> getActiveAuctions() {
+		List<Auction> auctions = new ArrayList<Auction>();
+
+		try {
+			ResultSet results = connection.prepareStatement("CALL get_active_auctions;").executeQuery();
+			// For each row in the result, create a new auction object and add it to the
+			// list of auctions..
+			while (results.next())
+				auctions.add(new Auction(results));
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error getting active auctions.");
+		}
+
+		return auctions;
 	}
-	
-	
 
 	public int getProductWithName(String name) throws SQLException {
 		PreparedStatement stat = connection.prepareStatement("SELECT id FROM product WHERE name LIKE ?");
@@ -266,56 +262,50 @@ public class Database {
 		return id;
 	}
 
-	public void makeBid(Auction auction, Long userID, Integer amount) throws BidTooLowException, InvalidInputException, InvalidBidderException {
-		if (userID == null)
-			throw new RuntimeException("Error making bid. UserID is null.");
-		
-		if (amount == null)
-			throw new InvalidInputException();
-		
-		//Make sure bid is at least 1 credit higher than the highest bid...
-		boolean isReserveMet = amount >= auction.startPrice;
-		boolean isHighestBid = auction.highBid == null || amount > auction.highBid;
-		if (!isReserveMet || !isHighestBid) 
-			throw new BidTooLowException();
-		
-		//Don't allow users to bid on auctions they created.
+	public void makeBid(Auction auction, Long userID, Integer amount)
+			throws BidTooLowException, InvalidInputException, InvalidBidderException, InsufficientFundsException {
+		// Don't allow users to bid on an auction they created.
 		if (auction.ownerID == userID)
 			throw new InvalidBidderException();
-		
-		//Calculate the ID for the for the new bid by adding 1 to the highest bid id in the database.
-		//TODO: Combine this all into a single SQL stored procedure, since a race condition for the ID can occur if two people try creating a bid at the same time.
-		int bidID = getnewID()+1;
-		
-		//Obtain the current date in a valid SQL format
-		String date = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now());
-		
-		PreparedStatement statement;
-		try {
-			
-			statement = connection.prepareStatement("INSERT INTO bid VALUES(?, ?, ?, ?, ?)");
-			statement.setInt(1, bidID);
-			statement.setInt(2, amount);
-			statement.setLong(3, userID);
-			statement.setString(4, date);
-			statement.setLong(5, auction.id);
 
+		if (userID == null)
+			throw new RuntimeException("Error making bid. UserID is null.");
+
+		if (amount == null)
+			throw new InvalidInputException();
+
+		// Make sure bid is at least 1 credit higher than the highest bid...
+		boolean isReserveMet = amount >= auction.startPrice;
+		boolean isHighestBid = auction.highBid == null || amount > auction.highBid;
+		if (!isReserveMet || !isHighestBid)
+			throw new BidTooLowException();
+
+		int availableCredits = getAvailableCredits(userID, auction.id);
+		System.out.println("Available credits for bid: " + availableCredits);
+		if ((availableCredits - amount) < 0)
+			throw new InsufficientFundsException();
+
+		try {
+			PreparedStatement statement = connection.prepareStatement("CALL make_bid(?,?,?);");
+			statement.setLong(1, auction.id);
+			statement.setLong(2, userID);
+			statement.setLong(3, amount);
 			statement.execute();
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RuntimeException("Error making bid!");
 		}
-		
 
 	}
-	
+
 	public Auction getAuctionWithID(long id) {
 		for (Auction auction : getAuctions()) {
 			if (auction.id == id)
 				return auction;
 		}
-		throw new RuntimeException("Error getting auction with ID "+id+". Auction not found.");
+		throw new RuntimeException("Error getting auction with ID " + id + ". Auction not found.");
 	}
 
 	public int getnewID() {
@@ -331,17 +321,16 @@ public class Database {
 			e.printStackTrace();
 			throw new RuntimeException("Error getting new bid id");
 		}
-		
+
 	}
-	
+
 	/*
 	 * Returns the current user info from the database for the user matching userID.
 	 */
 	public User getUser(long userID) {
 		ResultSet results = null;
 		try {
-			String query = "SELECT * FROM user WHERE id = ?";
-			PreparedStatement statement = connection.prepareStatement(query);
+			PreparedStatement statement = connection.prepareStatement("CALL get_user_with_id(?)");
 			statement.setLong(1, userID);
 			results = statement.executeQuery();
 
@@ -355,27 +344,32 @@ public class Database {
 		}
 		return null;
 	}
+
 	public ResultSet getBidswithPID(long id) {
 		ResultSet results;
 		try {
-			//"SELECT bid.id, bid.ammount, bid.user_id, 'name', 'date', auction_id, auction.id, auction.product_id, product.id, product.name FROM bid LEFT JOIN auction on auction_id = auction.id LEFT JOIN user ON bid.user_id = user.id LEFT JOIN product ON auction.product_id = product.id WHERE product.id = ?"
-//this might be the better query
-		String query = "SELECT * FROM bid LEFT JOIN auction on auction_id = auction.id LEFT JOIN user ON bid.user_id = user.id LEFT JOIN product ON auction.product_id = product.id WHERE product.id = ?";
-		PreparedStatement statement = connection.prepareStatement(query);
-		statement.setLong(1, id);
-		results = statement.executeQuery();
-		}catch (SQLException e) {
+			// "SELECT bid.id, bid.ammount, bid.user_id, 'name', 'date', auction_id,
+			// auction.id, auction.product_id, product.id, product.name FROM bid LEFT JOIN
+			// auction on auction_id = auction.id LEFT JOIN user ON bid.user_id = user.id
+			// LEFT JOIN product ON auction.product_id = product.id WHERE product.id = ?"
+			// this might be the better query
+			String query = "SELECT * FROM bid LEFT JOIN auction on auction_id = auction.id LEFT JOIN user ON bid.user_id = user.id LEFT JOIN product ON auction.product_id = product.id WHERE product.id = ?";
+			PreparedStatement statement = connection.prepareStatement(query);
+			statement.setLong(1, id);
+			results = statement.executeQuery();
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RuntimeException("Error getting bids with product id");
 		}
 		return results;
 	}
+
 	void processFinishedAuctions() {
 		System.out.print("Processing finished auctions..");
 		try {
-			PreparedStatement statement = connection.prepareStatement("CALL process_finished_auctions();"); 
-			
+			PreparedStatement statement = connection.prepareStatement("CALL process_finished_auctions();");
+
 			statement.execute();
 			System.out.println(" DONE!");
 
@@ -384,6 +378,7 @@ public class Database {
 			throw new RuntimeException("Process finished auctions failed!");
 		}
 	}
+
 	public int getAvailableCredits(long userID, Long auctionID) {
 		ResultSet results = null;
 		try {
@@ -403,4 +398,14 @@ public class Database {
 			throw new RuntimeException("Error gettings active bid totals.");
 		}
 	}
-}
+
+	return statement.getInt(3);
+
+	}catch(
+
+	SQLException e)
+	{
+		e.printStackTrace();
+		throw new RuntimeException("Error gettings active bid totals.");
+	}
+}}

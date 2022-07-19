@@ -81,6 +81,14 @@ WHERE auction.id = last_insert_id();
 END //
 DELIMITER ;
 
+-- Make Bid
+DROP PROCEDURE IF EXISTS make_bid;
+DELIMITER // 
+CREATE PROCEDURE `make_bid` (in p_auction_id int, in p_user_id int, in p_ammount int)
+BEGIN
+insert into bid (ammount, user_id, `date`, auction_id) values (p_ammount, p_user_id, NOW(), p_auction_id);
+END //
+DELIMITER ;
 
 -- PROCESS FINISHED AUCTIONS AND TRANSFER OWNERSHIP
 DROP PROCEDURE IF EXISTS `process_finished_auctions`;
@@ -128,3 +136,92 @@ WHERE auction.id IN (
 DROP TABLE finished_auctions;
 END //
 DELIMITER ;
+
+
+
+-- Get active auctions
+DROP PROCEDURE IF EXISTS get_active_auctions;
+DELIMITER // 
+CREATE PROCEDURE `get_active_auctions` ()
+BEGIN
+	SELECT 
+		auction.*,
+		TIMESTAMPDIFF(SECOND,NOW(),DATE_ADD(start_date,interval duration_mins minute)) AS seconds_remaining,
+		bid.ammount AS top_bid,
+		bid.user_id AS top_bidder,
+		owner.id,
+		product.*
+	FROM auction 
+		
+		LEFT JOIN product ON auction.product_id = product.id
+		LEFT JOIN user AS owner ON product.owner_id = owner.id
+		LEFT JOIN bid ON bid.auction_id = auction.id
+		LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
+		WHERE other.id IS NULL
+	AND auction.is_active = 1;
+END //
+DELIMITER ;
+
+-- Get active auctions
+DROP PROCEDURE IF EXISTS get_auctions;
+DELIMITER // 
+CREATE PROCEDURE `get_auctions` ()
+BEGIN
+	SELECT 
+		auction.*,
+		TIMESTAMPDIFF(SECOND,NOW(),DATE_ADD(start_date,interval duration_mins minute)) AS seconds_remaining,
+		bid.ammount AS top_bid,
+		bid.user_id AS top_bidder,
+		owner.id,
+		product.*
+	FROM auction 
+		
+		LEFT JOIN product ON auction.product_id = product.id
+		LEFT JOIN user AS owner ON product.owner_id = owner.id
+		LEFT JOIN bid ON bid.auction_id = auction.id
+		LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
+		WHERE other.id IS NULL;
+END //
+DELIMITER ;
+
+-- Get user with ID
+DROP PROCEDURE IF EXISTS get_user_with_id;
+DELIMITER // 
+CREATE PROCEDURE `get_user_with_id` (IN userID INT)
+BEGIN
+	SELECT * FROM user WHERE user.id = userID;
+END //
+DELIMITER ;
+
+-- Get available credits for a user to bid on an auction.
+DROP PROCEDURE IF EXISTS get_user_available_credits;
+DELIMITER // 
+CREATE PROCEDURE `get_user_available_credits` (
+	IN userID INT,
+    IN excluded_auction_id INT,
+    OUT total INT
+)
+BEGIN
+	DECLARE creditsInUse INT;
+    
+	SELECT 
+		IFNULL(SUM(bid.ammount),0)
+	FROM auction 
+		
+		JOIN product ON auction.product_id = product.id
+		JOIN `user` AS `owner` ON product.owner_id = owner.id
+		JOIN bid ON bid.auction_id = auction.id
+		LEFT JOIN bid higher_bid ON higher_bid.auction_id = bid.auction_id AND bid.ammount < higher_bid.ammount 
+        JOIN `user` AS top_bidder ON bid.user_id = top_bidder.id
+		WHERE higher_bid.id IS NULL
+	AND top_bidder.id = userID
+	AND auction.is_active = 1
+    AND (excluded_auction_id IS NULL OR auction.id != excluded_auction_id)
+    INTO creditsInUse;
+    
+    SELECT (credits-creditsInUse) FROM `user` WHERE `user`.id = userID INTO total;
+    
+END //
+DELIMITER ;
+
+
