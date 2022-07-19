@@ -45,12 +45,10 @@ public class AccountServlet extends BaseServlet {
 		if (products.length() == 0)
 			products.append("<p>You have no items in your inventory.</p>");
 	
-		StringBuilder auctions = new StringBuilder();
+		StringBuilder participatingAuctions = new StringBuilder();
 		for (Auction auction : database.getParticipatingAuctions(user.id)) {
 			
 			StringBuilder message = new StringBuilder();
-			
-			
 			
 			//Get a status message describing whether this auction is winning/losing.
 			message.append("<p>");
@@ -78,14 +76,43 @@ public class AccountServlet extends BaseServlet {
 			StringBuilder endDateMsg = new StringBuilder();
 			//SHow the end date.
 			if (auction.isActive)
-				endDateMsg.append("Ends: ");
+				endDateMsg.append("Ends ");
 			else
-				endDateMsg.append("Ended: ");
+				endDateMsg.append("Ended ");
 			endDateMsg.append(auction.getEndDate());
 			
 			Product product = database.getProductWithID(auction.productID);
 			if (product != null) 
-				auctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
+				participatingAuctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
+		}
+		
+		StringBuilder startedAuctions = new StringBuilder();
+		for (Auction auction : database.getStartedAuctions(user.id)) {
+			StringBuilder message = new StringBuilder();
+			
+			message.append("<p>");
+			//Show the current high bid (if there is one)..
+			if (auction.hasBid()) {
+				
+				message.append("High Bid: ");
+				message.append(auction.getHighBidText());
+			}
+			else
+				message.append("No Bids");
+			
+			message.append("</p>");
+			
+			StringBuilder endDateMsg = new StringBuilder();
+			//SHow the end date.
+			if (auction.isActive)
+				endDateMsg.append("Ends ");
+			else
+				endDateMsg.append("Ended ");
+			endDateMsg.append(auction.getEndDate());
+			
+			Product product = database.getProductWithID(auction.productID);
+			if (product != null) 
+				startedAuctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
 		}
 		
 		
@@ -93,7 +120,8 @@ public class AccountServlet extends BaseServlet {
 				user.userName, 
 				user.credits, 
 				products.toString(),
-				auctions);
+				participatingAuctions,
+				startedAuctions);
 	}
 
 	
