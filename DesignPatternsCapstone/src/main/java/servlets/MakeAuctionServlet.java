@@ -59,7 +59,7 @@ public class MakeAuctionServlet extends BaseServlet {
 		long productID = Long.parseLong(req.getParameter("id"));
 		Product product = database.getProductWithID(productID);
 		if (product != null) 
-			body.append(readFileText("html/product.html", product.imagePath, product.name, ""));
+			body.append(readFileText("html/auction.html", product.imagePath, product.name, ""));
 		
 
 		//Add the make auction form..
