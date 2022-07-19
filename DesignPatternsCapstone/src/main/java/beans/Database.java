@@ -1,12 +1,14 @@
 package beans;
 
 import java.io.IOException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -382,5 +384,23 @@ public class Database {
 			throw new RuntimeException("Process finished auctions failed!");
 		}
 	}
-	
+	public int getAvailableCredits(long userID, Long auctionID) {
+		ResultSet results = null;
+		try {
+			CallableStatement statement = connection.prepareCall("CALL get_user_available_credits(?,?,?)");
+			statement.setLong(1, userID);
+			if (auctionID != null)
+				statement.setLong(2, auctionID);
+			else 
+				statement.setNull(2,  Types.INTEGER);
+			statement.registerOutParameter(3, java.sql.Types.INTEGER);
+			statement.execute();
+
+			return statement.getInt(3);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error gettings active bid totals.");
+		}
+	}
 }
