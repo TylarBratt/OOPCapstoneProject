@@ -93,6 +93,9 @@ public class AccountServlet extends BaseServlet {
 				participatingAuctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
 		}
 		
+		if (participatingAuctions.length() == 0)
+			participatingAuctions.append("<p>None</p>");
+		
 		StringBuilder startedAuctions = new StringBuilder();
 		for (Auction auction : database.getStartedAuctions(user.id)) {
 			StringBuilder endDateMsg = new StringBuilder();
@@ -143,6 +146,8 @@ public class AccountServlet extends BaseServlet {
 			if (product != null) 
 				startedAuctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
 		}
+		if (startedAuctions.length() == 0)
+			startedAuctions.append("<p>None</p>");
 		
 		
 		return readFileText("html/account.html", 
