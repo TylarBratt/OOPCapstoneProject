@@ -426,4 +426,18 @@ public class Database {
 		
 		return auctions;
 	}
+	
+	public void cancelAuction(long auctionID) {
+	
+		try {
+			CallableStatement statement = connection.prepareCall("CALL cancel_auction(?)");
+			statement.setLong(1, auctionID);
+			statement.execute();
+
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error cancelling auction.");
+		}
+	}
 }

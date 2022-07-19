@@ -280,3 +280,23 @@ END //
 DELIMITER ;
 
 
+
+
+
+-- Cancel auction.
+DROP PROCEDURE IF EXISTS cancel_auction;
+DELIMITER // 
+
+CREATE PROCEDURE cancel_auction(
+	IN auction_id INT
+)
+BEGIN
+	UPDATE auction 
+	SET auction.is_active = 0
+	WHERE auction.id = auction_id;
+END //
+DELIMITER ;
+
+
+
+

@@ -102,6 +102,9 @@ body {
 	margin-top: 0px;
 	font-size: small;
 }
+.participating-auction .button-link{
+	float: right;
+}
 .participating-auction img {
 	float: left;
 	background-color: linen;

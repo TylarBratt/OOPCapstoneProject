@@ -8,8 +8,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import beans.Auction;
+import beans.BidResult;
+import beans.LocalURLBuilder;
 import beans.Product;
 import beans.User;
+import beans.exception.BidTooLowException;
+import beans.exception.InsufficientFundsException;
+import beans.exception.InvalidBidderException;
+import beans.exception.InvalidInputException;
 import beans.navbar.LoggedInNavbar;
 
 @WebServlet("/account")
@@ -19,6 +25,7 @@ public class AccountServlet extends BaseServlet {
 	public AccountServlet(){
 		super("FleaBay - Account Overview", "account", true, true);
 	}
+	
 	
 	
 
@@ -88,27 +95,49 @@ public class AccountServlet extends BaseServlet {
 		
 		StringBuilder startedAuctions = new StringBuilder();
 		for (Auction auction : database.getStartedAuctions(user.id)) {
-			StringBuilder message = new StringBuilder();
-			
-			message.append("<p>");
-			//Show the current high bid (if there is one)..
-			if (auction.hasBid()) {
-				
-				message.append("High Bid: ");
-				message.append(auction.getHighBidText());
-			}
-			else
-				message.append("No Bids");
-			
-			message.append("</p>");
-			
 			StringBuilder endDateMsg = new StringBuilder();
 			//SHow the end date.
 			if (auction.isActive)
 				endDateMsg.append("Ends ");
 			else
 				endDateMsg.append("Ended ");
+			
 			endDateMsg.append(auction.getEndDate());
+			
+			
+			StringBuilder message = new StringBuilder();
+			
+			message.append("<p>");
+			if (auction.isActive) {
+				//Show the current high bid (if there is one)..
+				if (auction.hasBid()) {
+					
+					message.append("High Bid: ");
+					message.append(auction.getHighBidText());
+				}
+				else
+					message.append("No Bids");
+			}
+			else {
+				if (auction.hasBid()) {
+					message.append("Sold for: ");
+					message.append(auction.getHighBidText());
+				}
+				else
+					message.append("Didn't Sell");
+			}
+			
+			message.append("</p>");
+			
+
+			//Include a cancel button if the auction is still active.
+			if (auction.isActive) 
+				message.append(readFileText("html/cancel-auction-button.html", auction.id));
+			
+			
+			
+			
+			
 			
 			Product product = database.getProductWithID(auction.productID);
 			if (product != null) 
@@ -124,5 +153,28 @@ public class AccountServlet extends BaseServlet {
 				startedAuctions);
 	}
 
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+		Long auctionToCancelID;
+		try{
+			auctionToCancelID = Long.parseLong(req.getParameter("cancel-auction"));
+		} catch (NumberFormatException e) {
+			auctionToCancelID = null;
+		}
+		
+		System.out.println("Auction to cancel: "+auctionToCancelID);
+		
+		if (auctionToCancelID != null)
+			database.cancelAuction(auctionToCancelID);
+		
+		//Start building the parameter list that we'll use to display a message to the user.
+		LocalURLBuilder responseUrl = new LocalURLBuilder("account",req);
+		
+
+		//Reload the home page with response parameters.
+		resp.sendRedirect(responseUrl.toString());
+	}
+	
 	
 }
