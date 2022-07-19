@@ -25,11 +25,11 @@ public class Database {
 	public Connection connection = null;
 
 	public Database() {
-		
+
 		// Get connection to database.
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			//System.out.println("MySQL JDBC Driver Registered!");
+			// System.out.println("MySQL JDBC Driver Registered!");
 
 			// Create database connection. Append allowMultiQueries flag if you need to
 			// process multiple queries at a time.
@@ -188,43 +188,39 @@ public class Database {
 			if (results.next()) {
 				System.out.println("Auction created successfully!");
 				return true;
-			}
-			else return false;
+			} else
+				return false;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Create auction failed.");
 		}
-		
-		
 
 	}
 
 	public Auction getActiveAuctionForProduct(long productID) {
-		for (Auction auction : getActiveAuctions()) 
+		for (Auction auction : getActiveAuctions())
 			if (auction.productID == productID)
 				return auction;
-		
-		
+
 		// No matching auction found.
 		return null;
 	}
 
-	
-	
 	/*
 	 * Returns all auctions.
 	 */
-	public List<Auction> getAuctions(){
+	public List<Auction> getAuctions() {
 
 		List<Auction> auctions = new ArrayList<Auction>();
-		
+
 		try {
 			PreparedStatement statement = connection.prepareStatement("CALL get_auctions;"); // TODO: Make
-												
+
 			ResultSet results = statement.executeQuery();
 
-			//For each row in the result, create a new auction object and add it to the list of auctions..
+			// For each row in the result, create a new auction object and add it to the
+			// list of auctions..
 			while (results.next())
 				auctions.add(new Auction(results));
 
@@ -232,30 +228,30 @@ public class Database {
 			e.printStackTrace();
 			throw new RuntimeException("Error getting auctions.");
 		}
-		
+
 		return auctions;
-		
+
 	}
+
 	/*
 	 * Returns all active auctions.
 	 */
-	public List<Auction> getActiveAuctions(){
+	public List<Auction> getActiveAuctions() {
 		List<Auction> auctions = new ArrayList<Auction>();
-		
+
 		try {
 			ResultSet results = connection.prepareStatement("CALL get_active_auctions;").executeQuery();
-			//For each row in the result, create a new auction object and add it to the list of auctions..
+			// For each row in the result, create a new auction object and add it to the
+			// list of auctions..
 			while (results.next())
 				auctions.add(new Auction(results));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Error getting active auctions.");
 		}
-		
+
 		return auctions;
 	}
-	
-	
 
 	public int getProductWithName(String name) throws SQLException {
 		PreparedStatement stat = connection.prepareStatement("SELECT id FROM product WHERE name LIKE ?");
@@ -266,32 +262,31 @@ public class Database {
 		return id;
 	}
 
-	public void makeBid(Auction auction, Long userID, Integer amount) throws BidTooLowException, InvalidInputException, InvalidBidderException, InsufficientFundsException{
-		//Don't allow users to bid on an auction they created.
-				if (auction.ownerID == userID)
-					throw new InvalidBidderException();
-				
+	public void makeBid(Auction auction, Long userID, Integer amount)
+			throws BidTooLowException, InvalidInputException, InvalidBidderException, InsufficientFundsException {
+		// Don't allow users to bid on an auction they created.
+		if (auction.ownerID == userID)
+			throw new InvalidBidderException();
+
 		if (userID == null)
 			throw new RuntimeException("Error making bid. UserID is null.");
-		
+
 		if (amount == null)
 			throw new InvalidInputException();
-		
-		//Make sure bid is at least 1 credit higher than the highest bid...
+
+		// Make sure bid is at least 1 credit higher than the highest bid...
 		boolean isReserveMet = amount >= auction.startPrice;
 		boolean isHighestBid = auction.highBid == null || amount > auction.highBid;
-		if (!isReserveMet || !isHighestBid) 
+		if (!isReserveMet || !isHighestBid)
 			throw new BidTooLowException();
-		
-		
-		int availableCredits = getAvailableCredits(userID,auction.id);
-		System.out.println("Available credits for bid: "+availableCredits);
+
+		int availableCredits = getAvailableCredits(userID, auction.id);
+		System.out.println("Available credits for bid: " + availableCredits);
 		if ((availableCredits - amount) < 0)
 			throw new InsufficientFundsException();
-		
-		
+
 		try {
-			PreparedStatement statement = connection.prepareStatement("CALL make_bid(?,?,?);"); 
+			PreparedStatement statement = connection.prepareStatement("CALL make_bid(?,?,?);");
 			statement.setLong(1, auction.id);
 			statement.setLong(2, userID);
 			statement.setLong(3, amount);
@@ -302,16 +297,15 @@ public class Database {
 			e.printStackTrace();
 			throw new RuntimeException("Error making bid!");
 		}
-		
 
 	}
-	
+
 	public Auction getAuctionWithID(long id) {
 		for (Auction auction : getAuctions()) {
 			if (auction.id == id)
 				return auction;
 		}
-		throw new RuntimeException("Error getting auction with ID "+id+". Auction not found.");
+		throw new RuntimeException("Error getting auction with ID " + id + ". Auction not found.");
 	}
 
 	public int getnewID() {
@@ -327,9 +321,9 @@ public class Database {
 			e.printStackTrace();
 			throw new RuntimeException("Error getting new bid id");
 		}
-		
+
 	}
-	
+
 	/*
 	 * Returns the current user info from the database for the user matching userID.
 	 */
@@ -350,12 +344,32 @@ public class Database {
 		}
 		return null;
 	}
-	
+
+	public ResultSet getBidswithPID(long id) {
+		ResultSet results;
+		try {
+			// "SELECT bid.id, bid.ammount, bid.user_id, 'name', 'date', auction_id,
+			// auction.id, auction.product_id, product.id, product.name FROM bid LEFT JOIN
+			// auction on auction_id = auction.id LEFT JOIN user ON bid.user_id = user.id
+			// LEFT JOIN product ON auction.product_id = product.id WHERE product.id = ?"
+			// this might be the better query
+			String query = "SELECT * FROM bid LEFT JOIN auction on auction_id = auction.id LEFT JOIN user ON bid.user_id = user.id LEFT JOIN product ON auction.product_id = product.id WHERE product.id = ?";
+			PreparedStatement statement = connection.prepareStatement(query);
+			statement.setLong(1, id);
+			results = statement.executeQuery();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException("Error getting bids with product id");
+		}
+		return results;
+	}
+
 	void processFinishedAuctions() {
 		System.out.print("Processing finished auctions..");
 		try {
-			PreparedStatement statement = connection.prepareStatement("CALL process_finished_auctions();"); 
-			
+			PreparedStatement statement = connection.prepareStatement("CALL process_finished_auctions();");
+
 			statement.execute();
 			System.out.println(" DONE!");
 
@@ -364,7 +378,7 @@ public class Database {
 			throw new RuntimeException("Process finished auctions failed!");
 		}
 	}
-	
+
 	public int getAvailableCredits(long userID, Long auctionID) {
 		ResultSet results = null;
 		try {
@@ -434,10 +448,10 @@ public class Database {
 			statement.setLong(1, auctionID);
 			statement.execute();
 
-
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Error cancelling auction.");
 		}
 	}
 }
+
