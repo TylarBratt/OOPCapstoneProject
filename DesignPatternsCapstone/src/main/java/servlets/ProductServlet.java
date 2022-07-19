@@ -101,13 +101,19 @@ public class ProductServlet extends BaseServlet {
 					first = false;
 				}
 				full = true;
+				
 				int bidID = rs.getInt("id");
 				int ammount = rs.getInt("ammount");
 				Date bidDate = rs.getDate("date");
-				int duration = rs.getInt("duration_mins");
-				int startPrice = rs.getInt("start_price");
-				String userName = rs.getString("username");
 				ownerId = rs.getInt("owner_id");
+				String userName = rs.getString("username");
+				rs.close();
+				Auction auction	= database.getActiveAuctionForProduct(pr.id);
+				Long tempDuration = auction.durationMins;
+				int duration = tempDuration.intValue();
+				
+				
+				long startPrice = auction.startPrice;
 				String maskedUser = replaceAll(userName);
 				table.append("<tr>"
 						+"	<td>" + bidID +"</td>" 
@@ -116,19 +122,16 @@ public class ProductServlet extends BaseServlet {
 						+"	<td>" + maskedUser +"</td></tr>");
 				
 		//here we need to get the end date again.
-		Auction auction	= database.getActiveAuctionForProduct(pr.id);
+		
 		Date startDate = auction.startDate;
 		
 		Date finalDate = DateUtils.addMinutes(startDate, duration);
 		Date currentDate = new Date();
-	
-		long toConvert = finalDate.getTime() - currentDate.getTime();
-		toConvert = Math.max(toConvert, 0L);
-		long days= (toConvert / (1000 * 60 * 60 * 24)) % 365;
-		long hours = (toConvert / (1000 * 60 * 60)) % 24;
-		long minutes = (toConvert / (1000 * 60))% 60;
-		long seconds = (toConvert / 1000) % 60;
-		
+		int[] duration2 = getDuration(currentDate, finalDate);
+		long days= duration2[0];
+		long hours = duration2[1];
+		long minutes = duration2[2];
+		long seconds = duration2[3];
 	
 		System.out.println(startDate);
 		System.out.println(currentDate);
@@ -143,7 +146,7 @@ public class ProductServlet extends BaseServlet {
 				+ "<h4> Days: " + days + " Hours: " + hours + " Minutes: " + minutes + " Seconds: " + seconds + "</h4>"
 				+ "<h5> Auctioneer: " + userId + "</h5>");
 		body.append(table.toString());
-		rs.close();
+		
 		return readFileText("html/product-details.html", intro, pr.imagePath, body);
 			}
 			if (full == false) {
@@ -156,13 +159,12 @@ public class ProductServlet extends BaseServlet {
 				Date finalDate = DateUtils.addMinutes(startDate, duration);
 				LocalDateTime now = LocalDateTime.now();
 				Date currentDate = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
-				
-				long toConvert = finalDate.getTime() - currentDate.getTime();
-				toConvert = Math.max(toConvert, 0L);
-				long days= (toConvert / (1000 * 60 * 60 * 24)) % 365;
-				long hours = (toConvert / (1000 * 60 * 60)) % 24;
-				long minutes = (toConvert / (1000 * 60))% 60;
-				long seconds = (toConvert / 1000) % 60;
+				int[] duration2 = getDuration(currentDate, finalDate);
+			
+				long days= duration2[0];
+				long hours = duration2[1];
+				long minutes = duration2[2];
+				long seconds = duration2[3];
 				
 				Long startPrice = auction.startPrice;
 				User user = database.getUser(auction.ownerID);
@@ -209,8 +211,16 @@ public String replaceAll(String string) {
 public int[] getDuration(Date startDate, Date finalDate) {
 	int[] duration = new int[4];
 	
-	
-	
+	long toConvert = finalDate.getTime() - startDate.getTime();
+	toConvert = Math.max(toConvert, 0L);
+	long days= (toConvert / (1000 * 60 * 60 * 24)) % 365;
+	long hours = (toConvert / (1000 * 60 * 60)) % 24;
+	long minutes = (toConvert / (1000 * 60))% 60;
+	long seconds = (toConvert / 1000) % 60;
+	duration[0] = (int) days;
+	duration[1] = (int) hours;
+	duration[2] = (int) minutes;
+	duration[3] = (int) seconds;
 	return duration;
 }
 
