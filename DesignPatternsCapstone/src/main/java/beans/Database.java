@@ -398,14 +398,60 @@ public class Database {
 			throw new RuntimeException("Error gettings active bid totals.");
 		}
 	}
-
-	return statement.getInt(3);
-
-	}catch(
-
-	SQLException e)
-	{
-		e.printStackTrace();
-		throw new RuntimeException("Error gettings active bid totals.");
+	
+	/*
+	 * Returns all auctions which the user has bid on..
+	 */
+	public List<Auction> getParticipatingAuctions(long userID){
+		List<Auction> auctions = new ArrayList<Auction>();
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement("CALL get_participating_auctions(?)");
+			statement.setLong(1,userID);
+			ResultSet results = statement.executeQuery();
+			//For each row in the result, create a new auction object and add it to the list of auctions..
+			while (results.next())
+				auctions.add(new Auction(results));
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error getting participating auctions.");
+		}
+		
+		return auctions;
 	}
-}}
+	
+	/*
+	 * Returns all auctions which the user has started.
+	 */
+	public List<Auction> getStartedAuctions(long userID){
+		List<Auction> auctions = new ArrayList<Auction>();
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement("CALL get_started_auctions(?)");
+			statement.setLong(1,userID);
+			ResultSet results = statement.executeQuery();
+			//For each row in the result, create a new auction object and add it to the list of auctions..
+			while (results.next())
+				auctions.add(new Auction(results));
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error getting started auctions.");
+		}
+		
+		return auctions;
+	}
+	
+	public void cancelAuction(long auctionID) {
+	
+		try {
+			CallableStatement statement = connection.prepareCall("CALL cancel_auction(?)");
+			statement.setLong(1, auctionID);
+			statement.execute();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error cancelling auction.");
+		}
+	}
+}
+

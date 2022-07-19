@@ -81,3 +81,40 @@ body {
 	color: white;
 	padding: 5px;
 }
+
+
+.participating-auction {
+	background-color: #e1e1e1;
+	overflow: auto;
+	padding: 10px;
+	margin: 5px;
+	display: block;
+	border-radius: 10px;
+	width: 300px;
+}
+.participating-auction p {
+	margin: 8px;
+}
+.participating-auction .end-date {
+
+	margin-bottom: 8px;
+	margin-left: 0px;
+	margin-top: 0px;
+	font-size: small;
+}
+.participating-auction .button-link{
+	float: right;
+}
+.participating-auction img {
+	float: left;
+	background-color: linen;
+	width: 100px;
+	height: 100px;
+	margin-right: 8px;
+	border-radius: 5px;
+}
+
+.participating-auction h3 {
+	vertical-align:top;
+	margin: 8px;
+}

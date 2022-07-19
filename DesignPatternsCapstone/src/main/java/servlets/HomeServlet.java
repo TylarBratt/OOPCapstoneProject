@@ -130,7 +130,7 @@ public class HomeServlet extends BaseServlet {
 			for (Auction auction : activeAuctions)
 			{
 				//here we collect information to calculate date
-				Date date = auction.getDate();
+				Date date = auction.getStartDate();
 				long min = auction.getDurationMins();
 				Date finalDate = DateUtils.addMinutes(date, (int) min);
 				LocalDateTime now = LocalDateTime.now();
@@ -184,7 +184,7 @@ public class HomeServlet extends BaseServlet {
 			
 		}
 		else
-			body.append("<h3>None</h3>");
+			body.append("<h4>No active auctions. <a href=\"account\">Create one</a> to get the bidding started!</h4>");
 		
 		return body.toString();
 	}

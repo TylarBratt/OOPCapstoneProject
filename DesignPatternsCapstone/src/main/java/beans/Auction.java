@@ -2,6 +2,10 @@ package beans;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+
+import org.apache.commons.lang3.time.DateUtils;
+
 import java.sql.Date;
 
 public class Auction {
@@ -52,12 +56,15 @@ public class Auction {
 		return highBid != null;
 	}
 
-	public Date getDate() {
+	public Date getStartDate() {
 		
 		return startDate;
 	}
 	public long getDurationMins() {
 		return durationMins;
+	}
+	public Timestamp getEndDate() {
+		return new Timestamp( DateUtils.addMinutes(startDate, (int)durationMins).getTime());
 	}
 	public String getHighBidText() {
 		if (hasBid())
