@@ -20,7 +20,7 @@ import beans.navbar.Navbar;
 public class LoginServlet extends BaseServlet {
 	
 	public LoginServlet() {
-		super("FleaBay - Login", "login", true, false);
+		super("FleaBay - Login", true, false);
 	}
 
 
@@ -82,6 +82,13 @@ public class LoginServlet extends BaseServlet {
 	public Navbar getNavbar(HttpServletRequest req) {
 		//Always return the logged out navbar..
 		return new LoggedOutNavbar();
+	}
+
+
+	@Override
+	public String getActiveNavbarItem() {
+		// TODO Auto-generated method stub
+		return "login";
 	}
 	
 	

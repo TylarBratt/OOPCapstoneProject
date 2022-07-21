@@ -24,7 +24,7 @@ import beans.navbar.LoggedInNavbar;
 public class MakeAuctionServlet extends BaseServlet {
 	
 	public MakeAuctionServlet(){
-		super("Flea Bay - Create Auction", "make-auction", true, true);
+		super("Flea Bay - Create Auction", true, true);
 	}
 	
 	@Override
@@ -64,6 +64,11 @@ public class MakeAuctionServlet extends BaseServlet {
 
 		//Add the make auction form..
 		return readFileText("html/make-auction.html", productID, body.toString());
+	}
+
+	@Override
+	public String getActiveNavbarItem() {
+		return "make-auction";
 	}
 	
 }

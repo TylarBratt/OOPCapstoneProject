@@ -38,7 +38,7 @@ public class TemplateServlet extends BaseServlet {
 		 * 3. Boolean : Does this servlet need database access? If TRUE, database connection will be automatically initialized and made available through the "database" member.
 		 * 4. Boolean : Is login required to access this page? If TRUE, this servlet will automatically redirect users to the login screen if they don't have an active login session.
 		 */
-		super("Title", "template", true, false);
+		super("Title", true, false);
 	}
 
 	
@@ -98,7 +98,7 @@ public class TemplateServlet extends BaseServlet {
 		 * This is typically done to display the result of an action performed by the user (ie. make bid, start auction, etc)
 		 */
 		
-		LocalURLBuilder url = new LocalURLBuilder(this.path,req);
+		LocalURLBuilder url = new LocalURLBuilder("template",req);
 		
 		boolean isSuccess = true;
 		if (isSuccess)
@@ -112,6 +112,12 @@ public class TemplateServlet extends BaseServlet {
        	
     	
     }
+
+
+	@Override
+	public String getActiveNavbarItem() {
+		return "template";
+	}
 	
 	/**
 	 * By default, this page will use the LoggedInNavbar.

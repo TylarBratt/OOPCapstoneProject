@@ -27,7 +27,7 @@ import beans.navbar.Navbar;
 public class SignupServlet extends BaseServlet {
 
 	public SignupServlet() {
-		super("FleaBay - Create Account", "signup", true, false);
+		super("FleaBay - Create Account", true, false);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -81,6 +81,11 @@ public class SignupServlet extends BaseServlet {
 		
 	
 		return readFileText("html/signup.html", Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMsg);
+	}
+
+	@Override
+	public String getActiveNavbarItem() {
+		return "signup";
 	}
 	
 }

@@ -46,7 +46,7 @@ import beans.exception.InvalidInputException;
 public class HomeServlet extends BaseServlet {
 
 	public HomeServlet() {
-		super("FleaBay - Home", "home", true, true);
+		super("FleaBay - Home", true, true);
 	}
 
 	
@@ -187,6 +187,13 @@ public class HomeServlet extends BaseServlet {
 			body.append("<h4>No active auctions. <a href=\"account\">Create one</a> to get the bidding started!</h4>");
 		
 		return body.toString();
+	}
+
+
+
+	@Override
+	public String getActiveNavbarItem() {
+		return "home";
 	}
 
 }

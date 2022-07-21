@@ -23,7 +23,7 @@ import beans.navbar.LoggedInNavbar;
 public class AccountServlet extends BaseServlet {
 	
 	public AccountServlet(){
-		super("FleaBay - Account Overview", "account", true, true);
+		super("FleaBay - Account Overview", true, true);
 	}
 	
 	
@@ -179,6 +179,15 @@ public class AccountServlet extends BaseServlet {
 
 		//Reload the home page with response parameters.
 		resp.sendRedirect(responseUrl.toString());
+	}
+
+
+
+
+	@Override
+	public String getActiveNavbarItem() {
+		// TODO Auto-generated method stub
+		return "account";
 	}
 	
 	

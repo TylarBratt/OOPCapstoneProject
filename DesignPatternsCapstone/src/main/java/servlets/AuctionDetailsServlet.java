@@ -43,27 +43,15 @@ import beans.exception.InvalidInputException;
 	urlPatterns = "/productDescription"
 )
 
-public class ProductServlet extends BaseServlet {
+public class AuctionDetailsServlet extends BaseServlet {
 
-	public ProductServlet() {
-		super("FleaBay - Product Description", "productDescription", true, true);
+	public AuctionDetailsServlet() {
+		super("FleaBay - Auction Details", true, true);
 		
 	}
 
 	@Override
 	public String getBodyHTML(HttpServletRequest req) {
-		/*
-		 * Product Description page
-		 * We have passed a variable with the req that we need to save called with the value of product.id
-		 * We need the following to construct a nice description page
-		 * Name, Picture, All bids, bid, Start date, end date, start price,
-		 * 
-		 * new problem, We need to pass or grab the auction id right from the passed auction since there could be multiple auctions for the same product. 
-		 * just do it,
-		 * pass it through the same as id and add it to the sql statement.
-		 */
-		
-		
 		int ownerId = 0;
 		boolean full = false;
 		
@@ -75,7 +63,7 @@ public class ProductServlet extends BaseServlet {
 		Product pr = database.getProductWithID(id);
 		
 		StringBuilder intro = new StringBuilder();
-			intro.append("<h2>Product</h2>");
+			intro.append("<h2>Auction Details</h2>");
 			System.out.println(pr.imagePath);
 		StringBuilder body = new StringBuilder();
 			body.append("<h2>" + pr.name + "</h2>");
@@ -222,6 +210,11 @@ public int[] getDuration(Date startDate, Date finalDate) {
 	duration[2] = (int) minutes;
 	duration[3] = (int) seconds;
 	return duration;
+}
+
+@Override
+public String getActiveNavbarItem() {
+	return "home";
 }
 
 
