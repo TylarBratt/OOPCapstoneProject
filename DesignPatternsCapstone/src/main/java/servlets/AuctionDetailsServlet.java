@@ -31,6 +31,7 @@ import beans.BidResult;
 import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
+import beans.ProductIconAdapter;
 import beans.Timespan;
 import beans.LocalURLBuilder;
 import beans.User;
@@ -53,26 +54,27 @@ public class AuctionDetailsServlet extends BaseServlet {
 	public String getBodyHTML(HttpServletRequest req) {
 		//Get the auction ID from the URL parameter list
 		long auctionID = Long.parseLong(req.getParameter("aid"));
-		//Get the auction from the database using 
+		//Get the auction from the database using the auction ID.
 		Auction auction = database.getAuctionWithID(auctionID);
+		//Get the product being auctioned.
 		Product product = database.getProductWithID(auction.productID);
 		
 		//Include product image
-		String productImage = readFileText("html/product.html", product.imagePath, product.name, "");
+		String productImage = readFileText(new ProductIconAdapter(product));
 		
 		//Include table of bids
 		StringBuilder table = new StringBuilder();
 		List<Bid> bids = database.getBidsForAuction(auctionID);
 		if (bids.size() > 0) {	
 			//Add a row of info for each bid..
-			StringBuilder tableRows = new StringBuilder();
+			StringBuilder tableBody = new StringBuilder();
 			for (Bid bid : bids) 
-				tableRows.append(readFileText("html/bid-table-row.html", 
+				tableBody.append(readFileText("html/bid-table-row.html", 
 						bid.amount, 
 						bid.time, 
 						database.getUser(bid.userID).getMaskedUserName()));
 			
-			table.append(readFileText("html/bid-table.html", tableRows));
+			table.append(readFileText("html/bid-table.html", tableBody));
 		}
 		else
 			table.append("<p>No Bids</p>");

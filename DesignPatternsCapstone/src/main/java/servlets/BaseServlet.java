@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import beans.Database;
+import beans.HTMLAdapter;
 import beans.navbar.LoggedInNavbar;
 import beans.navbar.Navbar;
 
@@ -66,6 +67,7 @@ public abstract class BaseServlet extends HttpServlet{
 
 	}
 	
+	
 	public String readFileText(String path, Object ...arguments) {
 		try {
 			//Create a new buffered reader to load the file with.
@@ -87,6 +89,10 @@ public abstract class BaseServlet extends HttpServlet{
 			//Stop the program immediately an error occurs.
 			throw new RuntimeException("Error reading file text!");
 		}
+	}
+	
+	public String readFileText(HTMLAdapter htmlAdapter) {
+		return readFileText(htmlAdapter.getFilePath(), htmlAdapter.getArguments().toArray());
 	}
 	
 	public String generateCSS() {
