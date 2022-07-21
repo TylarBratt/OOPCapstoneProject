@@ -51,30 +51,28 @@ public class AuctionDetailsServlet extends BaseServlet {
 
 	@Override
 	public String getBodyHTML(HttpServletRequest req) {
+		//Get the auction ID from the URL parameter list
 		long auctionID = Long.parseLong(req.getParameter("aid"));
+		//Get the auction from the database using 
 		Auction auction = database.getAuctionWithID(auctionID);
 		Product product = database.getProductWithID(auction.productID);
 		
 		//Include product image
 		String productImage = readFileText("html/product.html", product.imagePath, product.name, "");
 		
+		//Include table of bids
 		StringBuilder table = new StringBuilder();
 		List<Bid> bids = database.getBidsForAuction(auctionID);
-		if (bids.size() > 0) {
-			table.append("<table>");
-			
-			//Add the table header first..
-			table.append(readFileText("html/bid-table-header.html")); 
-				
+		if (bids.size() > 0) {	
 			//Add a row of info for each bid..
+			StringBuilder tableRows = new StringBuilder();
 			for (Bid bid : bids) 
-				table.append(readFileText("html/bid-table-row.html", 
+				tableRows.append(readFileText("html/bid-table-row.html", 
 						bid.amount, 
 						bid.time, 
 						database.getUser(bid.userID).getMaskedUserName()));
 			
-			table.append("</table>");
-			
+			table.append(readFileText("html/bid-table.html", tableRows));
 		}
 		else
 			table.append("<p>No Bids</p>");
