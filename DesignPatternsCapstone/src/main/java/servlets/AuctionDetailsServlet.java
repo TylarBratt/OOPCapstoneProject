@@ -26,10 +26,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.time.DateUtils;
 
 import beans.Auction;
+import beans.Bid;
 import beans.BidResult;
 import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
+import beans.Timespan;
 import beans.LocalURLBuilder;
 import beans.User;
 import beans.navbar.LoggedInNavbar;
@@ -38,10 +40,7 @@ import beans.exception.BidTooLowException;
 import beans.exception.InvalidBidderException;
 import beans.exception.InvalidInputException;
 
-@WebServlet(
-	name = "productDescription",
-	urlPatterns = "/productDescription"
-)
+@WebServlet("/auction-details")
 
 public class AuctionDetailsServlet extends BaseServlet {
 
@@ -52,165 +51,46 @@ public class AuctionDetailsServlet extends BaseServlet {
 
 	@Override
 	public String getBodyHTML(HttpServletRequest req) {
-		int ownerId = 0;
-		boolean full = false;
+		long auctionID = Long.parseLong(req.getParameter("aid"));
+		Auction auction = database.getAuctionWithID(auctionID);
+		Product product = database.getProductWithID(auction.productID);
 		
-	
-		String step = req.getParameter("id");
-		long id = Long.parseLong(step);
-		System.out.println(id);
+		//Include product image
+		String productImage = readFileText("html/product.html", product.imagePath, product.name, "");
 		
-		Product pr = database.getProductWithID(id);
-		
-		StringBuilder intro = new StringBuilder();
-			intro.append("<h2>Auction Details</h2>");
-			System.out.println(pr.imagePath);
-		StringBuilder body = new StringBuilder();
-			body.append("<h2>" + pr.name + "</h2>");
-			//ok so this program has to be split into two seperate steps due to the sql statements required. If the first statement returns with no bids then the second statement runs.
+		StringBuilder table = new StringBuilder();
+		List<Bid> bids = database.getBidsForAuction(auctionID);
+		if (bids.size() > 0) {
+			table.append("<table>");
 			
+			//Add the table header first..
+			table.append(readFileText("html/bid-table-header.html")); 
+				
+			//Add a row of info for each bid..
+			for (Bid bid : bids) 
+				table.append(readFileText("html/bid-table-row.html", 
+						bid.amount, 
+						bid.time, 
+						database.getUser(bid.userID).getMaskedUserName()));
 			
-			//this is the start of the first section
-		ResultSet rs = database.getBidswithPID(id);
-		
-		boolean first = true;
-		try {
-			StringBuilder table = new StringBuilder();
-			while (rs.next()) {
-				if (first == true) {
-					
-					table.append("<table>" 
-					+"	<tr>"
-					+"  <th>Bid Id</th>"
-					+"  <th>Ammount</th>"
-					+"  <th>Bid Date</th>"
-					+"  <th>User Name</th>"
-					+"  </tr>");
-					first = false;
-				}
-				full = true;
-				
-				int bidID = rs.getInt("id");
-				int ammount = rs.getInt("ammount");
-				Date bidDate = rs.getDate("date");
-				ownerId = rs.getInt("owner_id");
-				String userName = rs.getString("username");
-				rs.close();
-				Auction auction	= database.getActiveAuctionForProduct(pr.id);
-				Long tempDuration = auction.durationMins;
-				int duration = tempDuration.intValue();
-				
-				
-				long startPrice = auction.startPrice;
-				String maskedUser = replaceAll(userName);
-				table.append("<tr>"
-						+"	<td>" + bidID +"</td>" 
-						+"	<td>" + ammount +"</td>"
-						+"	<td>" + bidDate +"</td>"
-						+"	<td>" + maskedUser +"</td></tr>");
-				
-		//here we need to get the end date again.
-		
-		Date startDate = auction.startDate;
-		
-		Date finalDate = DateUtils.addMinutes(startDate, duration);
-		Date currentDate = new Date();
-		int[] duration2 = getDuration(currentDate, finalDate);
-		long days= duration2[0];
-		long hours = duration2[1];
-		long minutes = duration2[2];
-		long seconds = duration2[3];
-	
-		System.out.println(startDate);
-		System.out.println(currentDate);
-		System.out.println(finalDate);
-		User auctioneer = database.getUser(ownerId);
-		String userId = replaceAll(auctioneer.userName);
+			table.append("</table>");
 			
-				
-		table.append("</table><h4> Starting Price: " + startPrice + "</h4>"
-				+ "<h4> Start Date: " + startDate +"</h4>"
-				+ "<h4> End Date: " + finalDate + "</h4>"
-				+ "<h4> Days: " + days + " Hours: " + hours + " Minutes: " + minutes + " Seconds: " + seconds + "</h4>"
-				+ "<h5> Auctioneer: " + userId + "</h5>");
-		body.append(table.toString());
-		
-		return readFileText("html/product-details.html", intro, pr.imagePath, body);
-			}
-			if (full == false) {
-				body.append("<h4>No Bids</h4>");
-				Auction auction = database.getActiveAuctionForProduct(pr.id);
-				
-				Date startDate = auction.startDate;
-				Long temp2 = auction.durationMins;
-				int duration = temp2.intValue();
-				Date finalDate = DateUtils.addMinutes(startDate, duration);
-				LocalDateTime now = LocalDateTime.now();
-				Date currentDate = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
-				int[] duration2 = getDuration(currentDate, finalDate);
-			
-				long days= duration2[0];
-				long hours = duration2[1];
-				long minutes = duration2[2];
-				long seconds = duration2[3];
-				
-				Long startPrice = auction.startPrice;
-				User user = database.getUser(auction.ownerID);
-				String userId = replaceAll(user.userName);
-				table.append("</table><h4> Starting Price: " + startPrice + "</h4>"
-				+ "<h4> Start Date: " + startDate +"</h4>"
-				+ "<h4> End Date: " + finalDate + "</h4>"
-				+ "<h4> Days: " + days + " Hours: " + hours + " Minutes: " + minutes + " Seconds: " + seconds + "</h4>"
-				+ "<h5> Auctioneer: " + userId + "</h5>");
-				body.append(table.toString());	
-				
-				
-				
-				
-				
-				return readFileText("html/product-details.html", intro, pr.imagePath, body);
-			}
-			}catch (SQLException e) {
-				e.printStackTrace();
-			}	
-		//this is the end of the first section and the start of the second.
-		
-		
-		
-		
-	
-	return readFileText("html/product-details.html", intro, pr.imagePath, body);
-	
 		}
+		else
+			table.append("<p>No Bids</p>");
+		
+		
+		return readFileText("html/auction-details.html", 
+				productImage,
+				table,
+				auction.startPrice, 
+				auction.startDate,
+				auction.getEndDate(),
+				auction.getTimeRemaining(database.getCurrentTimestamp()),
+				database.getUser(auction.ownerID).userName);
 	
-public String replaceAll(String string) {
-	StringBuilder place = new StringBuilder();
-	if (string.length()>2) {
-		place.append(string.charAt(0));
-		for (int i = 1; i < string.length() - 1; i++) {
-			place.append("*");
-		}
-		place.append(string.charAt(string.length() - 1));
-		return place.toString();
 	}
-	return string;
-}
-
-public int[] getDuration(Date startDate, Date finalDate) {
-	int[] duration = new int[4];
 	
-	long toConvert = finalDate.getTime() - startDate.getTime();
-	toConvert = Math.max(toConvert, 0L);
-	long days= (toConvert / (1000 * 60 * 60 * 24)) % 365;
-	long hours = (toConvert / (1000 * 60 * 60)) % 24;
-	long minutes = (toConvert / (1000 * 60))% 60;
-	long seconds = (toConvert / 1000) % 60;
-	duration[0] = (int) days;
-	duration[1] = (int) hours;
-	duration[2] = (int) minutes;
-	duration[3] = (int) seconds;
-	return duration;
-}
 
 @Override
 public String getActiveNavbarItem() {

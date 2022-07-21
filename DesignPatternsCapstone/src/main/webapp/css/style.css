@@ -118,3 +118,8 @@ body {
 	vertical-align:top;
 	margin: 8px;
 }
+
+table * {
+	padding: 4px;
+	text-align: center;
+}

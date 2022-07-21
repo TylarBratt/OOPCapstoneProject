@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -345,6 +346,24 @@ public class Database {
 		return null;
 	}
 
+	public List<Bid> getBidsForAuction(long auctionID){
+		List<Bid> bids = new ArrayList<>();
+		try {
+			String query = "SELECT * FROM bid WHERE auction_id = ? ORDER BY date DESC";
+			PreparedStatement statement = connection.prepareStatement(query);
+			statement.setLong(1, auctionID);
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next())
+				bids.add(new Bid(results));
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException("Error getting bids for auction "+auctionID);
+		}
+		return bids;
+	}
 	public ResultSet getBidswithPID(long id) {
 		ResultSet results;
 		try {
@@ -451,6 +470,22 @@ public class Database {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Error cancelling auction.");
+		}
+	}
+	
+	public Timestamp getCurrentTimestamp() {
+		PreparedStatement stat;
+		try {
+			stat = connection.prepareStatement("SELECT NOW();");
+			ResultSet result = stat.executeQuery();
+			if (!result.next())
+				throw new RuntimeException("Error getting current date");
+			return result.getTimestamp(1);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException("Error getting current date");
 		}
 	}
 }

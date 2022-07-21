@@ -82,15 +82,21 @@ public class AccountServlet extends BaseServlet {
 			
 			StringBuilder endDateMsg = new StringBuilder();
 			//SHow the end date.
-			if (auction.isActive)
-				endDateMsg.append("Ends ");
+			if (auction.isActive) {
+				endDateMsg.append("Ends in ");
+				endDateMsg.append(auction.getTimeRemaining(database.getCurrentTimestamp()));
+			}
 			else
-				endDateMsg.append("Ended ");
-			endDateMsg.append(auction.getEndDate());
+				endDateMsg.append("Ended");
 			
 			Product product = database.getProductWithID(auction.productID);
 			if (product != null) 
-				participatingAuctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
+				participatingAuctions.append(readFileText("html/participating-auction.html", 
+						product.imagePath, 
+						product.name, 
+						message, 
+						endDateMsg, 
+						auction.id));
 		}
 		
 		if (participatingAuctions.length() == 0)
@@ -100,12 +106,14 @@ public class AccountServlet extends BaseServlet {
 		for (Auction auction : database.getStartedAuctions(user.id)) {
 			StringBuilder endDateMsg = new StringBuilder();
 			//SHow the end date.
-			if (auction.isActive)
-				endDateMsg.append("Ends ");
-			else
+			if (auction.isActive) {
+				endDateMsg.append("Ends in ");
+				endDateMsg.append(auction.getTimeRemaining(database.getCurrentTimestamp()));
+			}
+			else {
 				endDateMsg.append("Ended ");
-			
-			endDateMsg.append(auction.getEndDate());
+				endDateMsg.append(auction.getEndDate());
+			}
 			
 			
 			StringBuilder message = new StringBuilder();
@@ -144,7 +152,12 @@ public class AccountServlet extends BaseServlet {
 			
 			Product product = database.getProductWithID(auction.productID);
 			if (product != null) 
-				startedAuctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
+				startedAuctions.append(readFileText("html/participating-auction.html", 
+						product.imagePath, 
+						product.name, 
+						message, 
+						endDateMsg, 
+						auction.id));
 		}
 		if (startedAuctions.length() == 0)
 			startedAuctions.append("<p>None</p>");
