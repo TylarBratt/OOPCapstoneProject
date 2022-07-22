@@ -31,7 +31,7 @@ import beans.BidResult;
 import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
-import beans.ProductIconAdapter;
+import beans.ProductIconHTMLAdapter;
 import beans.Timespan;
 import beans.LocalURLBuilder;
 import beans.User;
@@ -60,7 +60,7 @@ public class AuctionDetailsServlet extends BaseServlet {
 		Product product = database.getProductWithID(auction.productID);
 		
 		//Include product image
-		String productImage = readFileText(new ProductIconAdapter(product));
+		String productImage = readFileText(new ProductIconHTMLAdapter(product));
 		
 		//Include table of bids
 		StringBuilder table = new StringBuilder();

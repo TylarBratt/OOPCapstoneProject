@@ -16,7 +16,7 @@ import beans.Auction;
 import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
-import beans.ProductIconAdapter;
+import beans.ProductIconHTMLAdapter;
 import beans.User;
 import beans.navbar.LoggedInNavbar;
 
@@ -59,7 +59,7 @@ public class MakeAuctionServlet extends BaseServlet {
 		//Add the make auction form..
 		return readFileText("html/make-auction.html", 
 				productID, 
-				readFileText(new ProductIconAdapter(product)));
+				readFileText(new ProductIconHTMLAdapter(product)));
 	}
 
 	@Override

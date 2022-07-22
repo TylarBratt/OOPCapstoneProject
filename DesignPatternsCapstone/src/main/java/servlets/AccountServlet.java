@@ -11,7 +11,7 @@ import beans.Auction;
 import beans.BidResult;
 import beans.LocalURLBuilder;
 import beans.Product;
-import beans.ProductIconAdapter;
+import beans.ProductIconHTMLAdapter;
 import beans.User;
 import beans.exception.BidTooLowException;
 import beans.exception.InsufficientFundsException;
@@ -41,7 +41,7 @@ public class AccountServlet extends BaseServlet {
 		for (Product product : database.getProductsOwnedByUser(user.id)) {
 			Auction auction = database.getActiveAuctionForProduct(product.id);
 
-			products.append(readFileText(new ProductIconAdapter(product) {
+			products.append(readFileText(new ProductIconHTMLAdapter(product) {
 				@Override 
 				public String getExtraHTML() {
 					//Add 'create auction' button if this product is not currently for auction.

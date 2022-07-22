@@ -3,10 +3,10 @@ package beans;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductIconAdapter implements HTMLAdapter {
+public class ProductIconHTMLAdapter implements HTMLAdapter {
 
 	final Product product;
-	public ProductIconAdapter(Product product) {
+	public ProductIconHTMLAdapter(Product product) {
 		this.product = product;
 	}
 	@Override
