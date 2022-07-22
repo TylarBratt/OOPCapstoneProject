@@ -19,8 +19,11 @@ public class ProductIconAdapter implements HTMLAdapter {
 		List<Object> args = new ArrayList<>();
 		args.add(product.imagePath);
 		args.add(product.name);
-		args.add("");
+		args.add(getExtraHTML());
 		return args;
 	}
 
+	public String getExtraHTML() {
+		return "";
+	}
 }
