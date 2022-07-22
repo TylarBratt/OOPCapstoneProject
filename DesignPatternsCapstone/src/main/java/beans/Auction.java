@@ -3,6 +3,8 @@ package beans;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -62,6 +64,9 @@ public class Auction {
 	}
 	public long getDurationMins() {
 		return durationMins;
+	}
+	public Timespan getTimeRemaining(Timestamp currentTime) {
+		return new Timespan(Math.max(getEndDate().getTime() - currentTime.getTime(), 0L));
 	}
 	public Timestamp getEndDate() {
 		return new Timestamp( DateUtils.addMinutes(startDate, (int)durationMins).getTime());

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -29,6 +30,7 @@ import beans.BidResult;
 import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
+import beans.Timespan;
 import beans.LocalURLBuilder;
 import beans.User;
 import beans.navbar.LoggedInNavbar;
@@ -46,7 +48,7 @@ import beans.exception.InvalidInputException;
 public class HomeServlet extends BaseServlet {
 
 	public HomeServlet() {
-		super("FleaBay - Home", "home", true, true);
+		super("FleaBay - Home", true, true);
 	}
 
 	
@@ -122,6 +124,9 @@ public class HomeServlet extends BaseServlet {
 			targetAuctionID = null;
 		}
 
+		//Retrieve the current time from the database. Used to calculate the time remaining for each auction.
+		Timestamp currentTime = database.getCurrentTimestamp();
+		
 		StringBuilder body = new StringBuilder();
 		body.append("<h2>Auctions</h2>");
 		
@@ -129,22 +134,6 @@ public class HomeServlet extends BaseServlet {
 		if (activeAuctions.size() > 0) {
 			for (Auction auction : activeAuctions)
 			{
-				//here we collect information to calculate date
-				Date date = auction.getStartDate();
-				long min = auction.getDurationMins();
-				Date finalDate = DateUtils.addMinutes(date, (int) min);
-				LocalDateTime now = LocalDateTime.now();
-				Date currentDate = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
-				//here we actually calculate the date but it is in milliseconds or something
-				long toConvert = finalDate.getTime() - currentDate.getTime();
-				//Set the time to zero if negative.
-				toConvert = Math.max(toConvert, 0L);
-				//here we convert the milliseconds into viewable time increments.
-				long Days= (toConvert / (1000 * 60 * 60 * 24)) % 365;
-				long Hours = (toConvert / (1000 * 60 * 60)) % 24;
-				long Minutes = (toConvert / (1000 * 60))% 60;
-				long Seconds = (toConvert / 1000) % 60;
-				
 				String bidSuccessText = "";
 				String bidErrorText = "";
 				boolean isTargetAuction = (targetAuctionID != null && auction.id == targetAuctionID);
@@ -162,23 +151,19 @@ public class HomeServlet extends BaseServlet {
 						bidErrorText = BidResult.BID_FAILED_INSUFFICIENT_FUNDS.displayMessage;
 				}
 				
-				//Load the auction details HTML from file and populate it with the necessary values.
-				String auctionInfo = readFileText("html/auction-details.html", 
-						auction.productName, 
+				
+				Product product = database.getProductWithID(auction.productID);
+				body.append(readFileText("html/auction.html", 
+						product.name,
+						product.imagePath,
+						auction.id,
 						auction.hasBid() ? "High Bid:" : "Starting Price:", 
-						Days, 
-						Hours, 
-						Minutes, 
-						Seconds, 
+						auction.hasBid() ? auction.getHighBidText() : auction.startPrice,
+						auction.getTimeRemaining(currentTime),		
 						bidErrorText, 
 						bidSuccessText, 
-						auction.id,
-						auction.hasBid() ? auction.getHighBidText() : auction.startPrice);
-				
-		
-				Product product = database.getProductWithID(auction.productID);
-				if (product != null) 
-					body.append(readFileText("html/product.html", product.imagePath, product.name, auctionInfo, auction.productID));
+						auction.id));
+						
 				
 			}
 			
@@ -187,6 +172,13 @@ public class HomeServlet extends BaseServlet {
 			body.append("<h4>No active auctions. <a href=\"account\">Create one</a> to get the bidding started!</h4>");
 		
 		return body.toString();
+	}
+
+
+
+	@Override
+	public String getActiveNavbarItem() {
+		return "home";
 	}
 
 }

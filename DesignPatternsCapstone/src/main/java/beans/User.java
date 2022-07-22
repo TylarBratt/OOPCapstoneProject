@@ -27,4 +27,10 @@ public class User {
 	public long getid() {
 		return id;
 	}
+	
+	public String getMaskedUserName() {
+		char first = userName.charAt(0);
+		char last = userName.charAt(userName.length()-1);
+		return first + "******" + last;
+	}
 }

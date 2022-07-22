@@ -16,6 +16,7 @@ import beans.Auction;
 import beans.Database;
 import beans.DefaultProductInfo;
 import beans.Product;
+import beans.ProductIconHTMLAdapter;
 import beans.User;
 import beans.navbar.LoggedInNavbar;
 
@@ -24,7 +25,7 @@ import beans.navbar.LoggedInNavbar;
 public class MakeAuctionServlet extends BaseServlet {
 	
 	public MakeAuctionServlet(){
-		super("Flea Bay - Create Auction", "make-auction", true, true);
+		super("Flea Bay - Create Auction", true, true);
 	}
 	
 	@Override
@@ -52,18 +53,18 @@ public class MakeAuctionServlet extends BaseServlet {
 	
 	@Override
 	public String getBodyHTML(HttpServletRequest req) {
-		StringBuilder body = new StringBuilder();
-		
-		body.append("");
-		//Add the product image.
 		long productID = Long.parseLong(req.getParameter("id"));
 		Product product = database.getProductWithID(productID);
-		if (product != null) 
-			body.append(readFileText("html/product.html", product.imagePath, product.name, ""));
 		
-
 		//Add the make auction form..
-		return readFileText("html/make-auction.html", productID, body.toString());
+		return readFileText("html/make-auction.html", 
+				productID, 
+				readFileText(new ProductIconHTMLAdapter(product)));
+	}
+
+	@Override
+	public String getActiveNavbarItem() {
+		return "make-auction";
 	}
 	
 }

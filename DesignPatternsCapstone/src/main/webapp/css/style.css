@@ -59,7 +59,7 @@ body {
 	vertical-align: top;
 }
 
-.product img {
+.product .product-image {
 	display: block;
 	background-color: linen;
 	width: 100px;
@@ -117,4 +117,9 @@ body {
 .participating-auction h3 {
 	vertical-align:top;
 	margin: 8px;
+}
+
+table * {
+	padding: 4px;
+	text-align: center;
 }

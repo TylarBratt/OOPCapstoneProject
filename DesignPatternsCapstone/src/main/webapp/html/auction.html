@@ -1,0 +1,25 @@
+<div class="product">
+	<h3 class="product-name">{0}</h3>
+	<form action="auction-details" method="get">
+	<input class="product-image" type="image" id="image" alt="image2" src="images?src={1}"/>
+	<input type="hidden" name="aid" value="{2}" />
+	</form>
+	
+	<!-- Auction details -->
+	<form method=post>
+		<h4>{3}</h4>
+		<h5>{4}</h5>
+		<h4>Time Remaining: </h4>
+		<h5>{5}</h5>
+		
+		<!-- Bid error message -->
+		<p style="color:red;">{6}</p>
+		<!-- Bid success message -->
+		<p style="color:green;">{7}</p>
+		
+		<input type="number" placeholder="Enter your bid" name="newestBid"/>
+		<input type=hidden name="id" value={8}><input type = "submit" name="action" value="bid"/>
+	
+	</form>
+	
+</div>

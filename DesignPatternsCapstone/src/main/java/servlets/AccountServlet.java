@@ -11,6 +11,7 @@ import beans.Auction;
 import beans.BidResult;
 import beans.LocalURLBuilder;
 import beans.Product;
+import beans.ProductIconHTMLAdapter;
 import beans.User;
 import beans.exception.BidTooLowException;
 import beans.exception.InsufficientFundsException;
@@ -23,7 +24,7 @@ import beans.navbar.LoggedInNavbar;
 public class AccountServlet extends BaseServlet {
 	
 	public AccountServlet(){
-		super("FleaBay - Account Overview", "account", true, true);
+		super("FleaBay - Account Overview", true, true);
 	}
 	
 	
@@ -38,14 +39,18 @@ public class AccountServlet extends BaseServlet {
 		//Build the html for each product in the user's inventory..
 		StringBuffer products = new StringBuffer();
 		for (Product product : database.getProductsOwnedByUser(user.id)) {
-			String controls = "";
 			Auction auction = database.getActiveAuctionForProduct(product.id);
 
-			//Add 'create auction' button if this product is not currently for auction.
-			if (auction == null)
-				controls = readFileText("html/product-make-auction-button.html",  product.id);
-			
-			products.append(readFileText("html/product.html", product.imagePath, product.name, controls));
+			products.append(readFileText(new ProductIconHTMLAdapter(product) {
+				@Override 
+				public String getExtraHTML() {
+					//Add 'create auction' button if this product is not currently for auction.
+					if (auction == null)
+						return readFileText("html/product-make-auction-button.html",  product.id);
+					else
+						return super.getExtraHTML();
+				}
+			}));
 		}
 		
 		//If there are no products to display, display a friendly message.
@@ -82,15 +87,21 @@ public class AccountServlet extends BaseServlet {
 			
 			StringBuilder endDateMsg = new StringBuilder();
 			//SHow the end date.
-			if (auction.isActive)
-				endDateMsg.append("Ends ");
+			if (auction.isActive) {
+				endDateMsg.append("Ends in ");
+				endDateMsg.append(auction.getTimeRemaining(database.getCurrentTimestamp()));
+			}
 			else
-				endDateMsg.append("Ended ");
-			endDateMsg.append(auction.getEndDate());
+				endDateMsg.append("Ended");
 			
 			Product product = database.getProductWithID(auction.productID);
 			if (product != null) 
-				participatingAuctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
+				participatingAuctions.append(readFileText("html/participating-auction.html", 
+						product.imagePath, 
+						product.name, 
+						message, 
+						endDateMsg, 
+						auction.id));
 		}
 		
 		if (participatingAuctions.length() == 0)
@@ -100,12 +111,14 @@ public class AccountServlet extends BaseServlet {
 		for (Auction auction : database.getStartedAuctions(user.id)) {
 			StringBuilder endDateMsg = new StringBuilder();
 			//SHow the end date.
-			if (auction.isActive)
-				endDateMsg.append("Ends ");
-			else
+			if (auction.isActive) {
+				endDateMsg.append("Ends in ");
+				endDateMsg.append(auction.getTimeRemaining(database.getCurrentTimestamp()));
+			}
+			else {
 				endDateMsg.append("Ended ");
-			
-			endDateMsg.append(auction.getEndDate());
+				endDateMsg.append(auction.getEndDate());
+			}
 			
 			
 			StringBuilder message = new StringBuilder();
@@ -144,7 +157,12 @@ public class AccountServlet extends BaseServlet {
 			
 			Product product = database.getProductWithID(auction.productID);
 			if (product != null) 
-				startedAuctions.append(readFileText("html/participating-auction.html", product.imagePath, product.name, message, endDateMsg));
+				startedAuctions.append(readFileText("html/participating-auction.html", 
+						product.imagePath, 
+						product.name, 
+						message, 
+						endDateMsg, 
+						auction.id));
 		}
 		if (startedAuctions.length() == 0)
 			startedAuctions.append("<p>None</p>");
@@ -179,6 +197,15 @@ public class AccountServlet extends BaseServlet {
 
 		//Reload the home page with response parameters.
 		resp.sendRedirect(responseUrl.toString());
+	}
+
+
+
+
+	@Override
+	public String getActiveNavbarItem() {
+		// TODO Auto-generated method stub
+		return "account";
 	}
 	
 	

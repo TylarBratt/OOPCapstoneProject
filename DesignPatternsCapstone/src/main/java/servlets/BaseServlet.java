@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import beans.Database;
+import beans.HTMLAdapter;
 import beans.navbar.LoggedInNavbar;
 import beans.navbar.Navbar;
 
@@ -26,12 +27,10 @@ public abstract class BaseServlet extends HttpServlet{
 	Database database = null; //Only initialized if isUsingDatabase is true.
 	
 	public final boolean isLoginRequired; //If true, the user will be automatically redirected to the login screen if not logged in.
-	public final String path;
 	public final String title;
 	
-	public BaseServlet(String title, String path, boolean isUsingDatabase, boolean isLoginRequired) {
+	public BaseServlet(String title, boolean isUsingDatabase, boolean isLoginRequired) {
 		this.title = title;
-		this.path = path;
 		this.isUsingDatabase = isUsingDatabase;
 		this.isLoginRequired = isLoginRequired;
 	}
@@ -68,6 +67,7 @@ public abstract class BaseServlet extends HttpServlet{
 
 	}
 	
+	
 	public String readFileText(String path, Object ...arguments) {
 		try {
 			//Create a new buffered reader to load the file with.
@@ -91,6 +91,10 @@ public abstract class BaseServlet extends HttpServlet{
 		}
 	}
 	
+	public String readFileText(HTMLAdapter htmlAdapter) {
+		return readFileText(htmlAdapter.getFilePath(), htmlAdapter.getArguments().toArray());
+	}
+	
 	public String generateCSS() {
 		return "<style>"+readFileText("/css/style.css")+"</style>";
 	}
@@ -100,7 +104,7 @@ public abstract class BaseServlet extends HttpServlet{
 	public String getHTML(HttpServletRequest req) {
 		
 		//Generate a basic html page from base template..
-		return readFileText("html/base.html", title, generateCSS(), getNavbar(req).getHTML(path), getBodyHTML(req));
+		return readFileText("html/base.html", title, generateCSS(), getNavbar(req).getHTML(getActiveNavbarItem()), getBodyHTML(req));
 	}
 	public abstract String getBodyHTML(HttpServletRequest req);
 	
@@ -108,5 +112,7 @@ public abstract class BaseServlet extends HttpServlet{
 	public Navbar getNavbar(HttpServletRequest req) {
 		return new LoggedInNavbar();
 	}
+	
+	public abstract String getActiveNavbarItem();
 	
 }
