@@ -2,4 +2,22 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" id="WebApp_ID" version="4.0">
   <display-name>DesignPatternsCapstone</display-name>
 
+	<context-param>
+		<param-name>databaseSchema</param-name>
+		<param-value>oop_capstone</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>databaseUser</param-name>
+		<param-value>22S_CST8288_450_GROUP_2</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>databasePassword</param-name>
+		<param-value>CST8288</param-value>
+	</context-param>
+		
+	
+	
+
 </web-app>

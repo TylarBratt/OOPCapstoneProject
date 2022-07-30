@@ -25,7 +25,7 @@ public class ServiceManager implements ServletContextListener {
 	
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
-		dbConnection = new Database();
+		dbConnection = new Database(event.getServletContext());
 		
 		//Use the scheduler to start background tasks here....
 		

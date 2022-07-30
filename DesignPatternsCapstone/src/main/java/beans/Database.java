@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import beans.exception.BidTooLowException;
 import beans.exception.InsufficientFundsException;
 import beans.exception.InvalidBidderException;
@@ -25,18 +27,20 @@ import beans.exception.InvalidInputException;
 public class Database {
 	public Connection connection = null;
 
-	public Database() {
+	public Database(ServletContext servletContext) {
 
 		// Get connection to database.
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			// System.out.println("MySQL JDBC Driver Registered!");
 
-			// Create database connection. Append allowMultiQueries flag if you need to
-			// process multiple queries at a time.
+			String databaseSchema = servletContext.getInitParameter("databaseSchema");
+			String databaseUser = servletContext.getInitParameter("databaseUser");
+			String databasePassword = servletContext.getInitParameter("databasePassword");
+			
 			connection = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/" + Common.databaseSchema/* +"?allowMultiQueries=true" */,
-					Common.databaseUser, Common.databasePassword);
+					"jdbc:mysql://localhost:3306/" + databaseSchema/* +"?allowMultiQueries=true" */,
+					databaseUser, databasePassword);
 
 		} catch (ClassNotFoundException e) {
 			System.out.print("MySQL JDBC driver not found!");
