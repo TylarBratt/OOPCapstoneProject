@@ -48,7 +48,7 @@ public abstract class BaseServlet extends HttpServlet{
 	public void init() throws ServletException {
 		//Initialize the database connection, if requested.
 		if (isUsingDatabase) 
-			database = new Database();
+			database = new Database(getServletContext());
 		
 		super.init();
 	}
