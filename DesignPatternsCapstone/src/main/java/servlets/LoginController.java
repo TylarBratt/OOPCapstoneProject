@@ -17,10 +17,10 @@ import beans.navbar.Navbar;
 
 @WebServlet("/login")
 
-public class LoginServlet extends BaseServlet {
+public class LoginController extends JSPController {
 	
-	public LoginServlet() {
-		super("FleaBay - Login", true, false);
+	public LoginController() {
+		super("login.jsp", true, false);
 	}
 
 
@@ -48,11 +48,16 @@ public class LoginServlet extends BaseServlet {
 					//Redirect to the home page.
 					resp.sendRedirect(new LocalURLBuilder("home", req).toString());
 					return;
-				} else resp.sendRedirect(new LocalURLBuilder("login", req).addParam("invalid-credentials").toString());
+				} else {
+					//Add an error msg
+					req.setAttribute("err", "Username or password is incorrect. Try again.");
+					doGet(req,resp);
+				}
 				
 				break;
 			default:
-				resp.sendRedirect(new LocalURLBuilder("login", req).addParam("request-failed").toString());
+				req.setAttribute("err", "Request failed. Try again.");
+				doGet(req,resp);
 		}
 		
 		
@@ -62,34 +67,6 @@ public class LoginServlet extends BaseServlet {
 		
 	}
 	
-
-	@Override
-	public String getBodyHTML(HttpServletRequest req) {
-		
-		String errorMsg = "";
-		if (req.getParameter("invalid-credentials") != null)
-			errorMsg = "Username or password is incorrect. Try again.";
-		else if (req.getParameter("request-failed") != null)
-			errorMsg = "Request failed. Try again.";
-		
-		// TODO Auto-generated method stub
-		//Read the html file and insert data for the specified arguments..
-		return readFileText("html/login.html",Common.appName, Common.appSlogan, errorMsg);
-			
-	}
-	
-	@Override
-	public Navbar getNavbar(HttpServletRequest req) {
-		//Always return the logged out navbar..
-		return new LoggedOutNavbar();
-	}
-
-
-	@Override
-	public String getActiveNavbarItem() {
-		// TODO Auto-generated method stub
-		return "login";
-	}
 	
 	
 }

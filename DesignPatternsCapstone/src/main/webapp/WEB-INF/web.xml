@@ -17,7 +17,15 @@
 		<param-value>CST8288</param-value>
 	</context-param>
 		
+	<context-param>
+		<param-name>startingCredits</param-name>
+		<param-value>500</param-value>
+	</context-param>
 	
+	<context-param>
+		<param-name>startingProductCount</param-name>
+		<param-value>5</param-value>
+	</context-param>
 	
 
 </web-app>
