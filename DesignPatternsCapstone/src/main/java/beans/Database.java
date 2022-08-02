@@ -332,7 +332,10 @@ public class Database {
 	/*
 	 * Returns the current user info from the database for the user matching userID.
 	 */
-	public User getUser(long userID) {
+	public User getUser(Long userID) {
+		if (userID == null)
+			return null;
+		
 		ResultSet results = null;
 		try {
 			PreparedStatement statement = connection.prepareStatement("CALL get_user_with_id(?)");

@@ -1,11 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+    pageEncoding="ISO-8859-1"
+	import="java.util.List"
+    import="beans.Auction"
+    import="beans.Database"
+    import="beans.User"%>
 
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="ISO-8859-1">
-		<title>Create Auction - FleaBay</title>
+		<title>Login - FleaBay</title>
 		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 	</head>
 	<body>
@@ -30,7 +34,7 @@
 			<input type="submit" value="Login" id="login">
 			
 		</form>
-
+		
 	</body>
 </html>
 

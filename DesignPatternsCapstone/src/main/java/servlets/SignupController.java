@@ -24,23 +24,11 @@ import beans.navbar.Navbar;
 
 @WebServlet("/signup")
 
-public class SignupServlet extends BaseServlet {
+public class SignupController extends JSPController {
 
-	public SignupServlet() {
-		super("FleaBay - Create Account", true, false);
-		// TODO Auto-generated constructor stub
+	public SignupController() {
+		super("signup.jsp", true, false);
 	}
-
-	public enum ErrorMessage {
-		USERNAME_TAKEN("Username is taken. Try again."),
-		MISSING_INFO("All fields must be filled.");
-		
-		ErrorMessage(String message){
-			this.message = message;
-		}
-		public String message;
-	}
-
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -62,30 +50,12 @@ public class SignupServlet extends BaseServlet {
 		}
 		else {
 			//Reload the page with "err" parameter set to 1
-			resp.sendRedirect(new LocalURLBuilder("signup",req).addParam("err").toString());
+			req.setAttribute("err", "User is taken. Try again.");
+			doGet(req,resp);
 		}
 	}
 	
-	@Override
-	public Navbar getNavbar(HttpServletRequest req){
-		return new LoggedOutNavbar();
-	}
 
-	@Override
-	public String getBodyHTML(HttpServletRequest req) {
-		//Check the parameters for an error condition..
-		String errorMsg = "";
-		
-		if (req.getParameter("err") != null)
-			errorMsg = "User is taken. Try again.";
-		
-	
-		return readFileText("html/signup.html", Long.toString(Common.newUserCredits), Long.toString(Common.newUserProductCount), errorMsg);
-	}
 
-	@Override
-	public String getActiveNavbarItem() {
-		return "signup";
-	}
 	
 }

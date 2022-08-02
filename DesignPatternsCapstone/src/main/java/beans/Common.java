@@ -1,9 +1,7 @@
 package beans;
 
 public class Common {
-	public static final String appName = "FleaBay";
-	public static final String appSlogan = "Better than eBay - it's FleaBay!";
-	
+
 	public static final int newUserCredits = 500;
 	public static final int newUserProductCount = 5;
 	

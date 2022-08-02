@@ -40,11 +40,6 @@ import beans.exception.InsufficientFundsException;
 import beans.exception.InvalidBidderException;
 import beans.exception.InvalidInputException;
 
-@WebServlet(
-	name = "home",
-	urlPatterns = "/home"
-)
-
 public class HomeServlet extends BaseServlet {
 
 	public HomeServlet() {
