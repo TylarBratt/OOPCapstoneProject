@@ -23,16 +23,18 @@ import beans.navbar.Navbar;
  * Simplifies common tasks such as database initialization and the loading of html files.
  *
  */
-public abstract class JSPServletBase extends HttpServlet{
+public abstract class JSPController extends HttpServlet{
+	
+	private static final long serialVersionUID = 1L;
+	
 	public final boolean isUsingDatabase;
 	Database database = null; //Only initialized if isUsingDatabase is true.
 	
 	public final boolean isLoginRequired; //If true, the user will be automatically redirected to the login screen if not logged in.
-	public final String title;
+
 	public final String jspPath;
 	
-	public JSPServletBase(String title, String jspPath, boolean isUsingDatabase, boolean isLoginRequired) {
-		this.title = title;
+	public JSPController(String jspPath, boolean isUsingDatabase, boolean isLoginRequired) {
 		this.isUsingDatabase = isUsingDatabase;
 		this.isLoginRequired = isLoginRequired;
 		this.jspPath = jspPath;
@@ -64,8 +66,11 @@ public abstract class JSPServletBase extends HttpServlet{
 			resp.sendRedirect(req.getContextPath() + "/login");
 		}
 		else {
+			//Attach user/database attributes to the request.
+			req.setAttribute("db", database);
+			
 			//Forward the request to the associated JSP file.
-			RequestDispatcher dispatcher = req.getRequestDispatcher(jspPath);
+			RequestDispatcher dispatcher = req.getRequestDispatcher("/jsp/"+jspPath);
 	        dispatcher.forward(req, resp);
 		}
 
@@ -99,17 +104,6 @@ public abstract class JSPServletBase extends HttpServlet{
 		return readFileText(htmlAdapter.getFilePath(), htmlAdapter.getArguments().toArray());
 	}
 	
-	public String generateCSS() {
-		return "<style>"+readFileText("/css/style.css")+"</style>";
-	}
 	
-	
-	
-	
-	public Navbar getNavbar(HttpServletRequest req) {
-		return new LoggedInNavbar();
-	}
-	
-	public abstract String getActiveNavbarItem();
 	
 }
