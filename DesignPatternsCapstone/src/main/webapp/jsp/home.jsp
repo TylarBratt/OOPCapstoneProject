@@ -6,9 +6,7 @@
     import="beans.User"%>
 
 <!-- Initialize Data -->
-<% Database db = (Database)request.getAttribute("db");
-   User user = db.getUser((Long)request.getSession().getAttribute("user"));
-   List<Auction> activeAuctions = db.getActiveAuctions(); %>
+<% List<Auction> activeAuctions = (List<Auction>)request.getAttribute("allActiveAuctions"); %>
    
 <!DOCTYPE html>
 <html>
@@ -28,9 +26,9 @@
 		<h2>Auctions</h2>
 		
 		<% if (activeAuctions.size() > 0) {
-			for (Auction auction : activeAuctions) {%>
+			for (int auctionIndex = 0; auctionIndex < activeAuctions.size(); auctionIndex++) {%>
 				<jsp:include page="auction.jsp">  
-					<jsp:param name="id" value='<%= auction.id %>' />  
+					<jsp:param name="id" value='<%= auctionIndex %>' />  
 				</jsp:include>  
 			<% }
 		}
