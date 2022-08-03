@@ -59,7 +59,7 @@ public abstract class JSPController extends HttpServlet{
 	}
 	
 	@Override
-	protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// If user is not logged in, redirect to login screen.
 		boolean isLoggedIn = req.getSession().getAttribute("user") != null;
 		if (isLoginRequired && !isLoggedIn) {
