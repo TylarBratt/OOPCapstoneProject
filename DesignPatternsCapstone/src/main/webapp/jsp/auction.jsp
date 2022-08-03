@@ -3,7 +3,6 @@
     import="java.util.List"
     import="beans.Product"
     import="beans.Auction"
-    import="beans.Database"
     import="java.sql.Timestamp"%>
 
 <% List<Auction> activeAuctions = (List<Auction>) request.getAttribute("allActiveAuctions");

@@ -19,9 +19,7 @@
 		<h1>Create An Auction</h1>
 		
 		<!-- Product Icon -->
-		<jsp:include page="product-icon.jsp">  
-			<jsp:param name="id" value='<%= request.getParameter("id") %>' /> 	 
-		</jsp:include> 
+		<jsp:include page="product-icon.jsp" />
 		
 		<!-- TODO add product image here -->
 		<form method="post">

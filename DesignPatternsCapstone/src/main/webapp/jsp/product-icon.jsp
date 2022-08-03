@@ -3,12 +3,8 @@
     import="beans.Product"
     import="beans.Database"%>
 
-<% Database database = (Database)request.getAttribute("db"); 
-   Product product = database.getProductWithID(Long.parseLong(request.getParameter("id")));
-   String extraHTML = request.getParameter("extra");
-   if (extraHTML == null)
-	   extraHTML = "";
-%>
+<% Product product = (Product)request.getAttribute("product");
+   String extraHTML = (String)request.getAttribute("productExtraHTML"); %>
 <div class="product">
 	<h3 class="product-name"><%= product.name %></h3>
 	<img class="product-image" src="images?src=<%= product.imagePath %>">
