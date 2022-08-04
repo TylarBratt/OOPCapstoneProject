@@ -1,13 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"
+    import="java.util.List"
     import="beans.Product"
     import="beans.Auction"
-    import="beans.Database"%>
+    import="java.sql.Timestamp"%>
 
-<% Database database = (Database)request.getAttribute("db"); 
-   Auction auction = database.getAuctionWithID(Long.parseLong(request.getParameter("id")));
-   Product product = database.getProductWithID(auction.productID); 
-	
+<% List<Auction> activeAuctions = (List<Auction>) request.getAttribute("allActiveAuctions");
+   List<Product> activeAuctionProducts = (List<Product>) request.getAttribute("allActiveAuctionProducts");
+   Timestamp currentTime = (Timestamp) request.getAttribute("currentTime");
+   int auctionIndex = Integer.parseInt(request.getParameter("id"));
+   
+   Auction auction = activeAuctions.get(auctionIndex);
+   Product product = activeAuctionProducts.get(auctionIndex); 
+
    Long targetAuctionID = (Long)request.getAttribute("targetAuctionID");
    String bidSuccessMsg = (String)request.getAttribute("bidSuccessMsg");
    String bidErrorMsg = (String)request.getAttribute("bidErrorMsg"); %>
@@ -24,7 +29,7 @@
 		<h4><%= auction.hasBid() ? "High Bid:" : "Starting Price:" %></h4>
 		<h5><%= auction.hasBid() ? auction.getHighBidText() : auction.startPrice %></h5>
 		<h4>Time Remaining: </h4>
-		<h5><%= auction.getTimeRemaining(database.getCurrentTimestamp()) %></h5>
+		<h5><%= auction.getTimeRemaining(currentTime) %></h5>
 		
 		<!-- Bid error/success messages -->
 		<% if (targetAuctionID != null && auction.id == targetAuctionID) { %>

@@ -62,12 +62,11 @@ public abstract class JSPController extends HttpServlet{
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// If user is not logged in, redirect to login screen.
 		boolean isLoggedIn = req.getSession().getAttribute("user") != null;
-		if (isLoginRequired && !isLoggedIn) {
+		if (isLoginRequired && !isLoggedIn) 
 			resp.sendRedirect(req.getContextPath() + "/login");
-		}
 		else {
 			//Attach database attribute to the request.
-			req.setAttribute("db", database);
+			initializeData(req);
 			
 			//Forward the request to the associated JSP file.
 			RequestDispatcher dispatcher = req.getRequestDispatcher("/jsp/"+jspPath);
@@ -76,6 +75,11 @@ public abstract class JSPController extends HttpServlet{
 
 	}
 	
+	/*
+	 * This is where you initialize any data that you want passed into the JSP. 
+	 * Data must be passed in as an attribute by calling req.setAttribute().
+	 */
+	public void initializeData(HttpServletRequest req) { }
 	
 	
 }

@@ -23,7 +23,6 @@ public class LoginController extends JSPController {
 		super("login.jsp", true, false);
 	}
 
-
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String action = req.getParameter("action");
@@ -66,6 +65,7 @@ public class LoginController extends JSPController {
 			
 		
 	}
+
 	
 	
 	

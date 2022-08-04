@@ -11,6 +11,7 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -44,12 +45,13 @@ import beans.exception.InvalidInputException;
 
 public class HomeController extends JSPController {
 
+
 	public HomeController() {
 		super("home.jsp", true, true);
 	}
 
 	
-
+	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		//Get user ID from the current session.
@@ -100,6 +102,23 @@ public class HomeController extends JSPController {
        	
     	}
     }
+
+
+
+	@Override
+	public void initializeData(HttpServletRequest req) {
+		List<Auction> activeAuctions = database.getActiveAuctions();
+		
+		//Build the list of products for each active auction.
+		List<Product> activeAuctionProducts = new ArrayList<>();
+		for (Auction auction : activeAuctions) 
+			activeAuctionProducts.add(database.getProductWithID(auction.productID));
+		
+		req.setAttribute("currentTime", database.getCurrentTimestamp());
+		req.setAttribute("allActiveAuctions", activeAuctions);
+		req.setAttribute("allActiveAuctionProducts", activeAuctionProducts);
+		
+	}
             
 
 

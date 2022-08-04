@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import beans.Product;
 import beans.User;
 
 @WebServlet("/make-auction")
@@ -17,6 +18,11 @@ public class MakeAuctionController extends JSPController {
 		super("make-auction.jsp", true, false);
 		// TODO Auto-generated constructor stub
 	}
+	
+	
+
+
+
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -38,6 +44,15 @@ public class MakeAuctionController extends JSPController {
 			resp.sendRedirect(req.getContextPath()+"/home");
 		else
 			doGet(req,resp);
+		
+	}
+
+
+
+	@Override
+	public void initializeData(HttpServletRequest req) {
+		Product product = database.getProductWithID(Long.parseLong(req.getParameter("id")));
+		req.setAttribute("product", product);
 		
 	}
 
