@@ -20,7 +20,7 @@
 		</jsp:include>  
 		
 		<h1>Welcome to FleaBay</h1>
-		<h3>Better than eBay - it's FleaBay!</h3>
+		<h3>We're better than eBay.</h3>
 		
 		<% String errorMsg = (String)request.getAttribute("err"); %>
 		<form method="post">

@@ -77,4 +77,11 @@ public class Auction {
 		else
 			return "None";
 	}
+	
+	public String getTimeRemainingMessage(Timestamp currentTime) {
+		if (isActive) 
+			return "Ends in "+getTimeRemaining(currentTime);
+		else
+			return "Ended";
+	}
 }

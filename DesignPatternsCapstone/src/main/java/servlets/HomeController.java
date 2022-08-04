@@ -45,23 +45,6 @@ import beans.exception.InvalidInputException;
 
 public class HomeController extends JSPController {
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
-		List<Auction> activeAuctions = database.getActiveAuctions();
-		
-		//Build the list of products for each active auction.
-		List<Product> activeAuctionProducts = new ArrayList<>();
-		for (Auction auction : activeAuctions) 
-			activeAuctionProducts.add(database.getProductWithID(auction.productID));
-		
-		req.setAttribute("currentTime", database.getCurrentTimestamp());
-		req.setAttribute("allActiveAuctions", activeAuctions);
-		req.setAttribute("allActiveAuctionProducts", activeAuctionProducts);
-		super.doGet(req, resp);
-	}
-
-
 
 	public HomeController() {
 		super("home.jsp", true, true);
@@ -119,6 +102,23 @@ public class HomeController extends JSPController {
        	
     	}
     }
+
+
+
+	@Override
+	public void initializeData(HttpServletRequest req) {
+		List<Auction> activeAuctions = database.getActiveAuctions();
+		
+		//Build the list of products for each active auction.
+		List<Product> activeAuctionProducts = new ArrayList<>();
+		for (Auction auction : activeAuctions) 
+			activeAuctionProducts.add(database.getProductWithID(auction.productID));
+		
+		req.setAttribute("currentTime", database.getCurrentTimestamp());
+		req.setAttribute("allActiveAuctions", activeAuctions);
+		req.setAttribute("allActiveAuctionProducts", activeAuctionProducts);
+		
+	}
             
 
 

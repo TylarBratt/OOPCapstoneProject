@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+    pageEncoding="ISO-8859-1"
+    import="beans.Product"%>
+
+<% Product product = (Product)request.getAttribute("product"); %>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -19,7 +22,11 @@
 		<h1>Create An Auction</h1>
 		
 		<!-- Product Icon -->
-		<jsp:include page="product-icon.jsp" />
+		<jsp:include page="product-icon.jsp">
+			<jsp:param name="name" value='<%= product.name %>' />
+			<jsp:param name="image" value='<%= product.imagePath %>'/>
+			<jsp:param name="extra" value='' />
+		</jsp:include>
 		
 		<!-- TODO add product image here -->
 		<form method="post">

@@ -2,19 +2,16 @@
     pageEncoding="ISO-8859-1" %>
 
 <!-- Import java classes -->
-<%@ page import="java.util.List"
-		 import="beans.Database" 
-		 import="beans.User" %>
+<%@ page import="java.util.List" %>
 		 
-<!-- Initialize data -->
-<% Database db = (Database)request.getAttribute("db");
-   User user = db.getUser((Long)request.getSession().getAttribute("user")); %>
+<!-- Initialize Data -->
+<%  %>
 
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="ISO-8859-1">
-		<title>Your Page Title</title>
+		<title>My Account - FleaBay</title>
 		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 	</head>
 	<body>

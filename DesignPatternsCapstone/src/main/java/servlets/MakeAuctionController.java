@@ -21,15 +21,6 @@ public class MakeAuctionController extends JSPController {
 	
 	
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
-		Product product = database.getProductWithID(Long.parseLong(req.getParameter("id")));
-		req.setAttribute("product", product);
-		req.setAttribute("productExtraHTML", "");
-		
-		super.doGet(req, resp);
-	}
 
 
 
@@ -53,6 +44,15 @@ public class MakeAuctionController extends JSPController {
 			resp.sendRedirect(req.getContextPath()+"/home");
 		else
 			doGet(req,resp);
+		
+	}
+
+
+
+	@Override
+	public void initializeData(HttpServletRequest req) {
+		Product product = database.getProductWithID(Long.parseLong(req.getParameter("id")));
+		req.setAttribute("product", product);
 		
 	}
 
