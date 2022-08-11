@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -43,14 +44,82 @@ import beans.exception.InvalidInputException;
 
 @WebServlet("/auction-details")
 
-public class AuctionDetailsServlet extends BaseServlet {
+public class AuctionDetailsServlet extends JSPController {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public AuctionDetailsServlet() {
-		super("FleaBay - Auction Details", true, true);
-		
+		super("auction-details.jsp", true, true);	
 	}
-
+	
 	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// If user is not logged in, redirect to login screen.
+		boolean isLoggedIn = req.getSession().getAttribute("user") != null;
+		if (isLoginRequired && !isLoggedIn) 
+			resp.sendRedirect(req.getContextPath() + "/login");
+		else {
+			//Attach database attribute to the request.
+			initializeData(req);
+			
+			//Forward the request to the associated JSP file.
+			RequestDispatcher dispatcher = req.getRequestDispatcher("/jsp/"+jspPath);
+	        dispatcher.forward(req, resp);
+		}
+
+	}
+	
+	/*
+	 * This is where you initialize any data that you want passed into the JSP. 
+	 * Data must be passed in as an attribute by calling req.setAttribute().
+	 */
+	public void initializeData(HttpServletRequest req) {
+		String middle = req.getParameter("aid");
+		long id = Long.valueOf(middle);
+		Auction auction = database.getAuctionWithID(id);
+		Product product = database.getProductWithID(auction.productID);
+		
+		StringBuilder table = new StringBuilder();
+		List<Bid> bids = database.getBidsForAuction(id);
+		if (bids.size() > 0) {	
+			//Add a row of info for each bid..
+			table.append("<table>");
+			table.append("<tr><td>Amount</td><td>Time</td><td>User</td>");
+			StringBuilder tableBody = new StringBuilder();
+			for (Bid bid : bids) 
+				tableBody.append("<tr>"
+						+ "<td>"
+						+ bid.amount
+						+ "</td>"
+						+ "<td>"
+						+ bid.time
+						+ "</td>"
+						+ "<td>"
+						+ database.getUser(bid.userID).getMaskedUserName()
+						+ "</td>");
+			
+			table.append(tableBody.toString() + "</table>");
+		}
+		else
+			table.append("<p>No Bids</p>");
+		
+		User user = database.getUser(auction.ownerID);
+		
+		
+		req.setAttribute("Auction", auction);
+		req.setAttribute("Product", product);
+		req.setAttribute("Table", table.toString());
+		req.setAttribute("Owner", user);
+	}
+	
+	
+}
+        	
+        	/*
+        	@Override
 	public String getBodyHTML(HttpServletRequest req) {
 		//Get the auction ID from the URL parameter list
 		long auctionID = Long.parseLong(req.getParameter("aid"));
@@ -96,8 +165,7 @@ public class AuctionDetailsServlet extends BaseServlet {
 public String getActiveNavbarItem() {
 	return "home";
 }
+*/
 
 
 
-
-}
