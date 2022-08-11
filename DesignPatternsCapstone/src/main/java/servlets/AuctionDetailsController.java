@@ -1,57 +1,29 @@
 package servlets;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.time.DateUtils;
-
 import beans.Auction;
 import beans.Bid;
-import beans.BidResult;
-import beans.Database;
-import beans.DefaultProductInfo;
 import beans.Product;
-import beans.ProductIconHTMLAdapter;
-import beans.Timespan;
-import beans.LocalURLBuilder;
 import beans.User;
-import beans.navbar.LoggedInNavbar;
-import beans.navbar.Navbar;
-import beans.exception.BidTooLowException;
-import beans.exception.InvalidBidderException;
-import beans.exception.InvalidInputException;
 
 @WebServlet("/auction-details")
 
-public class AuctionDetailsServlet extends JSPController {
+public class AuctionDetailsController extends JSPController {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public AuctionDetailsServlet() {
+	public AuctionDetailsController() {
 		super("auction-details.jsp", true, true);	
 	}
 	
