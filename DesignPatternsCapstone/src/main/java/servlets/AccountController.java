@@ -10,17 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import beans.Auction;
-import beans.BidResult;
-import beans.HTMLReader;
-import beans.LocalURLBuilder;
 import beans.Product;
-import beans.ProductIconHTMLAdapter;
 import beans.User;
-import beans.exception.BidTooLowException;
-import beans.exception.InsufficientFundsException;
-import beans.exception.InvalidBidderException;
-import beans.exception.InvalidInputException;
-import beans.navbar.LoggedInNavbar;
 
 @WebServlet("/account")
 
@@ -29,9 +20,6 @@ public class AccountController extends JSPController {
 	public AccountController(){
 		super("account.jsp", true, true);
 	}
-	
-	
-	
 	
 
 	@Override
@@ -62,7 +50,6 @@ public class AccountController extends JSPController {
 		for (Auction auction : participatingAuctions) {
 			String messageA;
 			String messageB;
-			String endDate;
 			
 			//Generate auction message line A.
 			if (auction.isActive) {
@@ -106,7 +93,6 @@ public class AccountController extends JSPController {
 		
 		for (Auction auction : startedAuctions) {
 			String message;
-			String endDate;
 			
 			//Generate auction message line A.
 			if (auction.isActive) {
