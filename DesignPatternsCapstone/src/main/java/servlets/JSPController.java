@@ -1,10 +1,6 @@
 package servlets;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.text.MessageFormat;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -13,9 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import beans.Database;
-import beans.HTMLAdapter;
-import beans.navbar.LoggedInNavbar;
-import beans.navbar.Navbar;
+import beans.MySQLDatabase;
 
 /**
  * 
@@ -53,7 +47,7 @@ public abstract class JSPController extends HttpServlet{
 	public void init() throws ServletException {
 		//Initialize the database connection, if requested.
 		if (isUsingDatabase) 
-			database = new Database(getServletContext());
+			database = new MySQLDatabase(getServletContext());
 		
 		super.init();
 	}

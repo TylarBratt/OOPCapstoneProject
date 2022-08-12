@@ -10,28 +10,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import beans.Auction;
-import beans.BidResult;
-import beans.HTMLReader;
-import beans.LocalURLBuilder;
 import beans.Product;
-import beans.ProductIconHTMLAdapter;
 import beans.User;
-import beans.exception.BidTooLowException;
-import beans.exception.InsufficientFundsException;
-import beans.exception.InvalidBidderException;
-import beans.exception.InvalidInputException;
-import beans.navbar.LoggedInNavbar;
 
 @WebServlet("/account")
 
 public class AccountController extends JSPController {
 	
+	private static final long serialVersionUID = 1L;
+
 	public AccountController(){
 		super("account.jsp", true, true);
 	}
-	
-	
-	
 	
 
 	@Override
@@ -43,21 +33,12 @@ public class AccountController extends JSPController {
 		List<Product> inventory = database.getProductsOwnedByUser(user.id);
 		req.setAttribute("inventory", inventory);
 		
-		//Get the extra html that will be displayed in each inventory item. 
-		List<String> inventoryExtraHTML = new ArrayList<>();
-		for (Product product : inventory) {
-			Auction auction = database.getActiveAuctionForProduct(product.id);
-			
-			//Add 'create auction' button if this product is not currently for auction.
-			String extraHTML;
-			if (auction == null)
-				extraHTML = new HTMLReader(getServletContext()).readFile("html/product-make-auction-button.html",  product.id);
-			else
-				extraHTML = "";
-			inventoryExtraHTML.add(extraHTML);
-		}
-		req.setAttribute("inventoryExtraHTML", inventoryExtraHTML);
+		//Build the list of active auctions associated with each product. (Use null if no active auction)
+		List<Auction> inventoryAuctions = new ArrayList<>();
+		for (Product product : inventory) 
+			inventoryAuctions.add(database.getActiveAuctionForProduct(product.id));
 		
+		req.setAttribute("inventoryAuctions", inventoryAuctions);
 		
 		//Initialize data for participating auctions...
 		List<Auction> participatingAuctions = database.getParticipatingAuctions(user.id);
@@ -69,7 +50,6 @@ public class AccountController extends JSPController {
 		for (Auction auction : participatingAuctions) {
 			String messageA;
 			String messageB;
-			String endDate;
 			
 			//Generate auction message line A.
 			if (auction.isActive) {
@@ -113,7 +93,6 @@ public class AccountController extends JSPController {
 		
 		for (Auction auction : startedAuctions) {
 			String message;
-			String endDate;
 			
 			//Generate auction message line A.
 			if (auction.isActive) {

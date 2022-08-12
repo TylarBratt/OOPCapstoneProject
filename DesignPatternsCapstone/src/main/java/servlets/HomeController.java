@@ -1,41 +1,17 @@
 package servlets;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.time.DateUtils;
-
 import beans.Auction;
-import beans.BidResult;
-import beans.Database;
-import beans.DefaultProductInfo;
 import beans.Product;
-import beans.Timespan;
-import beans.LocalURLBuilder;
-import beans.User;
-import beans.navbar.LoggedInNavbar;
-import beans.navbar.Navbar;
 import beans.exception.BidTooLowException;
 import beans.exception.InsufficientFundsException;
 import beans.exception.InvalidBidderException;
@@ -45,12 +21,10 @@ import beans.exception.InvalidInputException;
 
 public class HomeController extends JSPController {
 
-
 	public HomeController() {
 		super("home.jsp", true, true);
 	}
 
-	
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -120,7 +94,6 @@ public class HomeController extends JSPController {
 		
 	}
             
-
 
 
 }

@@ -8,12 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import beans.Common;
 import beans.LocalURLBuilder;
 import beans.User;
-import beans.navbar.LoggedInNavbar;
-import beans.navbar.LoggedOutNavbar;
-import beans.navbar.Navbar;
+
 
 @WebServlet("/login")
 
