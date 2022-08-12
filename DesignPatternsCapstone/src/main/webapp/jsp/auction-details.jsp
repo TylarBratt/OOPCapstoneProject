@@ -41,7 +41,6 @@
 
 	<h2>Auction Details</h2>
 	<jsp:include page="product-icon.jsp">
-		<jsp:param name="active" value="login" />
 		<jsp:param name="name" value="<%=product.name %>" />
 		<jsp:param name="image" value="<%= product.imagePath%>" />
 		<jsp:param name="extra" value="" />

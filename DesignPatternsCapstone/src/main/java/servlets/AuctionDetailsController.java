@@ -33,8 +33,7 @@ public class AuctionDetailsController extends JSPController {
 		Auction auction = database.getAuctionWithID(id);
 		Product product = database.getProductWithID(auction.productID);
 		
-		StringBuilder table = new StringBuilder();
-		
+	
 		User user = database.getUser(auction.ownerID);
 		
 		List<Bid> bids = database.getBidsForAuction(id);
@@ -52,7 +51,6 @@ public class AuctionDetailsController extends JSPController {
 		req.setAttribute("BidderNames", bidderNames);
 		req.setAttribute("Auction", auction);
 		req.setAttribute("Product", product);
-		req.setAttribute("Table", table.toString());
 		req.setAttribute("Owner", user);
 	}
 }
