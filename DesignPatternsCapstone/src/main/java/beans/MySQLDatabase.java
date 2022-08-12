@@ -184,11 +184,12 @@ public class MySQLDatabase implements Database {
 	public boolean createAuction(long userID, long productID, long startPrice, long durationMins) {
 		// TODO: Make sure userID matches product owner ID.
 		try {
-			PreparedStatement statement = connection.prepareStatement("CALL make_auction(?,?,?);"); // TODO: Make
+			PreparedStatement statement = connection.prepareStatement("CALL make_auction(?,?,?,?);"); // TODO: Make
 																									// static?
 			statement.setLong(1, productID);
 			statement.setLong(2, durationMins);
 			statement.setLong(3, startPrice);
+			statement.setLong(4, userID);
 			ResultSet results = statement.executeQuery();
 
 			if (results.next()) {

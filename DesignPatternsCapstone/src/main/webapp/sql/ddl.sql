@@ -41,6 +41,7 @@ CREATE TABLE `auction` (
   `duration_mins` int NOT NULL,
   `start_price` int NOT NULL,
   `is_active` int NOT NULL DEFAULT '1',
+  `auctioneer_id` int NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `is_UNIQUE` (`id`)
 );
@@ -71,12 +72,12 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS make_auction;
 DELIMITER // 
-CREATE PROCEDURE `make_auction` (in p_product_id int, in p_duration int, in p_start_price int)
+CREATE PROCEDURE `make_auction` (in p_product_id int, in p_duration int, in p_start_price int, in p_auctioneer_id int)
 BEGIN
-insert into auction (product_id, start_date, duration_mins, start_price) values (p_product_id, NOW(), p_duration, p_start_price);
+insert into auction (product_id, start_date, duration_mins, start_price, auctioneer_id) values (p_product_id, NOW(), p_duration, p_start_price, p_auctioneer_id);
 select * from auction
 JOIN product on auction.product_id = product.id 
-JOIN user ON product.owner_id = user.id 
+JOIN user ON auctioneer_id = user.id 
 WHERE auction.id = last_insert_id();
 END //
 DELIMITER ;
@@ -105,9 +106,8 @@ SELECT
 	owner.id AS owner_id,
     product.id AS product_id
 FROM auction 
-	
 	LEFT JOIN product ON auction.product_id = product.id
-    LEFT JOIN user AS owner ON product.owner_id = owner.id
+    LEFT JOIN user AS owner ON auctioneer_id = owner.id
     LEFT JOIN bid ON bid.auction_id = auction.id
 	LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
     WHERE other.id IS NULL
@@ -152,9 +152,8 @@ BEGIN
 		owner.id,
 		product.*
 	FROM auction 
-		
 		LEFT JOIN product ON auction.product_id = product.id
-		LEFT JOIN user AS owner ON product.owner_id = owner.id
+		LEFT JOIN user AS owner ON auctioneer_id = owner.id
 		LEFT JOIN bid ON bid.auction_id = auction.id
 		LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
 		WHERE other.id IS NULL
@@ -177,7 +176,7 @@ BEGIN
 	FROM auction 
 		
 		LEFT JOIN product ON auction.product_id = product.id
-		LEFT JOIN user AS owner ON product.owner_id = owner.id
+		LEFT JOIN user AS owner ON auctioneer_id = owner.id
 		LEFT JOIN bid ON bid.auction_id = auction.id
 		LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
 		WHERE other.id IS NULL;
@@ -207,9 +206,8 @@ BEGIN
 	SELECT 
 		IFNULL(SUM(bid.ammount),0)
 	FROM auction 
-		
 		JOIN product ON auction.product_id = product.id
-		JOIN `user` AS `owner` ON product.owner_id = owner.id
+		JOIN `user` AS `owner` ON auctioneer_id = owner.id
 		JOIN bid ON bid.auction_id = auction.id
 		LEFT JOIN bid higher_bid ON higher_bid.auction_id = bid.auction_id AND bid.ammount < higher_bid.ammount 
         JOIN `user` AS top_bidder ON bid.user_id = top_bidder.id
@@ -243,7 +241,7 @@ BEGIN
 	FROM (SELECT DISTINCT auction.* FROM bid 
 		  JOIN auction ON auction.id = bid.auction_id AND bid.user_id = user_id) AS auction
 		LEFT JOIN product ON auction.product_id = product.id
-		LEFT JOIN user AS owner ON product.owner_id = owner.id
+		LEFT JOIN user AS owner ON auctioneer_id = owner.id
 		LEFT JOIN bid ON bid.auction_id = auction.id
 		LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
 		WHERE other.id IS NULL
@@ -252,7 +250,7 @@ END //
 DELIMITER ;
 
 
--- Get participating auctions.
+-- Get started auctions.
 DROP PROCEDURE IF EXISTS get_started_auctions;
 DELIMITER // 
 
@@ -270,7 +268,7 @@ BEGIN
 		product.*
 	FROM auction
 		LEFT JOIN product ON auction.product_id = product.id
-		LEFT JOIN user AS `owner` ON product.owner_id = `owner`.id 
+		LEFT JOIN user AS `owner` ON auctioneer_id = `owner`.id 
 		LEFT JOIN bid ON bid.auction_id = auction.id
 		LEFT JOIN bid other ON other.auction_id = bid.auction_id AND bid.ammount < other.ammount 
 		WHERE other.id IS NULL AND
