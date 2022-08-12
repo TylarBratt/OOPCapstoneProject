@@ -11,7 +11,7 @@
 <!-- Initialize Data -->
 <% User user = (User) request.getAttribute("user"); 
    List<Product> inventory = (List<Product>)request.getAttribute("inventory"); 
-   List<String> inventoryExtraHTML = (List<String>)request.getAttribute("inventoryExtraHTML"); 
+   List<Auction> inventoryAuctions = (List<Auction>)request.getAttribute("inventoryAuctions"); 
    
    List<Auction> participatingAuctions = (List<Auction>)request.getAttribute("participatingAuctions"); 
    List<Product> participatingAuctionProducts = (List<Product>)request.getAttribute("participatingAuctionProducts");
@@ -52,10 +52,10 @@
 		<h3>Inventory</h3>
 		<% if (inventory.size() > 0) {
 		   		for (int i = 0; i < inventory.size(); i++) {  %>
-					<jsp:include page="product-icon.jsp">
+					<jsp:include page='<%= (inventoryAuctions.get(i) == null ? "product-icon-make-auction.jsp" : "product-icon.jsp")  %>'>
 						<jsp:param name="name" value='<%= inventory.get(i).name %>' />
 						<jsp:param name="image" value='<%= inventory.get(i).imagePath %>'/>
-						<jsp:param name="extra" value='<%= inventoryExtraHTML.get(i) %>' />
+						<jsp:param name="productid" value='<%= inventory.get(i).id %>' />
 					</jsp:include>
 				<% }
 		} else { %>

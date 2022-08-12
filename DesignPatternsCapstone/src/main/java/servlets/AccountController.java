@@ -43,20 +43,13 @@ public class AccountController extends JSPController {
 		List<Product> inventory = database.getProductsOwnedByUser(user.id);
 		req.setAttribute("inventory", inventory);
 		
-		//Get the extra html that will be displayed in each inventory item. 
-		List<String> inventoryExtraHTML = new ArrayList<>();
+		//Build the data lists needed to display the inventory.
+		List<Auction> inventoryAuctions = new ArrayList<>();
 		for (Product product : inventory) {
 			Auction auction = database.getActiveAuctionForProduct(product.id);
-			
-			//Add 'create auction' button if this product is not currently for auction.
-			String extraHTML;
-			if (auction == null)
-				extraHTML = new HTMLReader(getServletContext()).readFile("html/product-make-auction-button.html",  product.id);
-			else
-				extraHTML = "";
-			inventoryExtraHTML.add(extraHTML);
+			inventoryAuctions.add(auction);
 		}
-		req.setAttribute("inventoryExtraHTML", inventoryExtraHTML);
+		req.setAttribute("inventoryAuctions", inventoryAuctions);
 		
 		
 		//Initialize data for participating auctions...
