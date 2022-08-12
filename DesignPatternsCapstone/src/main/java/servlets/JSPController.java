@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import beans.Database;
+import beans.MySQLDatabase;
 
 /**
  * 
@@ -46,7 +47,7 @@ public abstract class JSPController extends HttpServlet{
 	public void init() throws ServletException {
 		//Initialize the database connection, if requested.
 		if (isUsingDatabase) 
-			database = new Database(getServletContext());
+			database = new MySQLDatabase(getServletContext());
 		
 		super.init();
 	}
