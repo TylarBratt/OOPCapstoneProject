@@ -17,6 +17,8 @@ import beans.User;
 
 public class AccountController extends JSPController {
 	
+	private static final long serialVersionUID = 1L;
+
 	public AccountController(){
 		super("account.jsp", true, true);
 	}
@@ -31,14 +33,12 @@ public class AccountController extends JSPController {
 		List<Product> inventory = database.getProductsOwnedByUser(user.id);
 		req.setAttribute("inventory", inventory);
 		
-		//Build the data lists needed to display the inventory.
+		//Build the list of active auctions associated with each product. (Use null if no active auction)
 		List<Auction> inventoryAuctions = new ArrayList<>();
-		for (Product product : inventory) {
-			Auction auction = database.getActiveAuctionForProduct(product.id);
-			inventoryAuctions.add(auction);
-		}
-		req.setAttribute("inventoryAuctions", inventoryAuctions);
+		for (Product product : inventory) 
+			inventoryAuctions.add(database.getActiveAuctionForProduct(product.id));
 		
+		req.setAttribute("inventoryAuctions", inventoryAuctions);
 		
 		//Initialize data for participating auctions...
 		List<Auction> participatingAuctions = database.getParticipatingAuctions(user.id);
